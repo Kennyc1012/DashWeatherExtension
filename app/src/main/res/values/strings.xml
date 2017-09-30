@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">DashWeather</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="high_low">High: %s, Low: %s</string>
+</resources>
