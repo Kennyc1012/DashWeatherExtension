@@ -1,10 +1,12 @@
 package com.kennyc.dashweather.services
 
+import android.location.Geocoder
 import com.google.android.apps.dashclock.api.DashClockExtension
 import com.google.android.apps.dashclock.api.ExtensionData
 import com.kennyc.dashweather.BuildConfig
 import com.kennyc.dashweather.R
 import com.kennyc.dashweather.api.ApiClient
+import java.util.*
 
 
 /**
@@ -25,7 +27,7 @@ class DarkSkyDashExtension : DashClockExtension() {
      */
     override fun onUpdateData(reason: Int) {
         // TODO Allow dynamic location
-        val weatherResult = ApiClient.darkSkyService.getForecast(BuildConfig.LAT_LON).execute()
+        val weatherResult = ApiClient.darkSkyService.getForecast(String.format("%.4f,%.4f", BuildConfig.LATITUDE, BuildConfig.LONGITUDE)).execute()
         val current = weatherResult.body()?.currently
         val daily = weatherResult.body()?.daily
         val currentTemp: String
@@ -46,16 +48,30 @@ class DarkSkyDashExtension : DashClockExtension() {
 
         val high: String
         val low: String
+        val humidity: String
 
         if (!daily?.data?.isEmpty()!!) {
             val weahter = daily.data!!.get(0)
             val tempHigh = Math.round(weahter.temperatureHigh)
             val tempLow = Math.round(weahter.temperatureLow)
+            val humidityConversion = Math.round(weahter.humidity * 100)
             high = getString(R.string.temp_F, tempHigh)
             low = getString(R.string.temp_F, tempLow)
+            humidity = getString(R.string.humidty, humidityConversion)
         } else {
             high = "???"
             low = "???"
+            humidity = "???"
+        }
+
+        val location: String
+        val address = Geocoder(applicationContext, Locale.getDefault()).getFromLocation(BuildConfig.LATITUDE, BuildConfig.LONGITUDE, 1)
+
+        if (address != null && !address.isEmpty()) {
+            val localAddress = address[0]
+            location = localAddress.locality + ", " + localAddress.adminArea
+        } else {
+            location = "???"
         }
 
         publishUpdate(ExtensionData()
@@ -63,6 +79,8 @@ class DarkSkyDashExtension : DashClockExtension() {
                 .icon(iconDrawable)
                 .status(currentTemp)
                 .expandedTitle(currentTemp + " - " + currentCondition)
-                .expandedBody(getString(R.string.high_low, high, low)))
+                .expandedBody(getString(R.string.high_low, high, low)
+                        + "\n" + humidity
+                        + "\n" + location))
     }
 }

@@ -14,7 +14,8 @@ android {
         versionCode 1
         versionName "1.0"
         buildConfigField "String", "API_KEY", project.API_KEY
-        buildConfigField "String", "LAT_LON", project.LAT_LON
+        buildConfigField "double", "LATITUDE", project.LATITUDE
+        buildConfigField "double", "LONGITUDE", project.LONGITUDE
     }
     buildTypes {
         release {
