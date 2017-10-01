@@ -33,7 +33,9 @@ class DarkSkyDashExtension : DashClockExtension() {
         val currentCondition: String
 
         if (current != null) {
-            currentTemp = Math.round(current.temperature).toString()
+            // TODO Determine temperature units
+            val temp = Math.round(current.temperature)
+            currentTemp = getString(R.string.temp_F, temp)
             iconDrawable = current.getIconDrawable()
             currentCondition = current.summary
         } else {
@@ -47,8 +49,10 @@ class DarkSkyDashExtension : DashClockExtension() {
 
         if (!daily?.data?.isEmpty()!!) {
             val weahter = daily.data!!.get(0)
-            high = Math.round(weahter.temperatureHigh).toString()
-            low = Math.round(weahter.temperatureLow).toString()
+            val tempHigh = Math.round(weahter.temperatureHigh)
+            val tempLow = Math.round(weahter.temperatureLow)
+            high = getString(R.string.temp_F, tempHigh)
+            low = getString(R.string.temp_F, tempLow)
         } else {
             high = "???"
             low = "???"
