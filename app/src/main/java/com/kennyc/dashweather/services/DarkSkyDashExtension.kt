@@ -1,6 +1,9 @@
 package com.kennyc.dashweather.services
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.location.Geocoder
+import android.support.v4.content.ContextCompat
 import com.google.android.apps.dashclock.api.DashClockExtension
 import com.google.android.apps.dashclock.api.ExtensionData
 import com.google.android.gms.location.LocationServices
@@ -24,18 +27,24 @@ class DarkSkyDashExtension : DashClockExtension() {
      * constants for more details.
      */
     override fun onUpdateData(reason: Int) {
-        // TODO Check permissions
-        val fusedLocation = LocationServices.getFusedLocationProviderClient(applicationContext)
-        fusedLocation.lastLocation.addOnSuccessListener { location ->
-            if (location != null) {
-                updateWeather(location.latitude, location.longitude)
+        val coarsePermission = ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_COARSE_LOCATION)
+        val finePermission = ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_FINE_LOCATION)
+
+        if (coarsePermission == PackageManager.PERMISSION_GRANTED || finePermission == PackageManager.PERMISSION_GRANTED) {
+            val fusedLocation = LocationServices.getFusedLocationProviderClient(applicationContext)
+            fusedLocation.lastLocation.addOnSuccessListener { location ->
+                if (location != null) {
+                    onLocationReceived(location.latitude, location.longitude)
+                }
+            }.addOnFailureListener { exception ->
+                onLocationFailed(exception)
             }
-        }.addOnFailureListener { exception ->
-            onLocationFailed(exception)
+        } else {
+            onPermissionMissing()
         }
     }
 
-    private fun updateWeather(latitude: Double, longitude: Double) {
+    private fun onLocationReceived(latitude: Double, longitude: Double) {
         val weatherResult = ApiClient.darkSkyService.getForecast(String.format("%.4f,%.4f", latitude, longitude)).execute()
         val current = weatherResult.body()?.currently
         val daily = weatherResult.body()?.daily
@@ -66,7 +75,7 @@ class DarkSkyDashExtension : DashClockExtension() {
             val humidityConversion = Math.round(weather.humidity * 100)
             high = getString(R.string.temp_F, tempHigh)
             low = getString(R.string.temp_F, tempLow)
-            humidity = getString(R.string.humidty, humidityConversion) + "%"
+            humidity = getString(R.string.humidity, humidityConversion) + "%"
         } else {
             high = "???"
             low = "???"
@@ -96,6 +105,16 @@ class DarkSkyDashExtension : DashClockExtension() {
     }
 
     private fun onLocationFailed(exception: Exception) {
-        // TODO
+
+    }
+
+    private fun onPermissionMissing() {
+        publishUpdate(ExtensionData()
+                .visible(true)
+                .icon(R.drawable.ic_map_marker_off_black_24dp)
+                .status(getString(R.string.permission_title))
+                .expandedTitle(getString(R.string.permission_title))
+                .expandedBody(getString(R.string.permission_body))
+                /* TODO .clickIntent()*/)
     }
 }

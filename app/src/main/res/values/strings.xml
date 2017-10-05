@@ -4,5 +4,7 @@
     <string name="high_low">High: %s, Low: %s</string>
     <string name="temp_F">%d&#176;F</string>
     <string name="temp_C">%d&#176;C</string>
-    <string name="humidty">Humidity: %d</string>
+    <string name="humidity">Humidity: %d</string>
+    <string name="permission_title">Permission Needed</string>
+    <string name="permission_body">Location permission is required</string>
 </resources>
