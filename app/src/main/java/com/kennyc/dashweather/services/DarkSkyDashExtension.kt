@@ -4,18 +4,25 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.support.v4.content.ContextCompat
+import android.util.Log
 import com.google.android.apps.dashclock.api.DashClockExtension
 import com.google.android.apps.dashclock.api.ExtensionData
 import com.google.android.gms.location.LocationServices
 import com.kennyc.dashweather.R
 import com.kennyc.dashweather.api.ApiClient
+import com.kennyc.dashweather.api.WeatherResult
 import java.util.*
+import kotlin.concurrent.thread
 
 
 /**
  * Created by Kenny-PC on 9/22/2017.
  */
 class DarkSkyDashExtension : DashClockExtension() {
+    companion object {
+        const val TAG = "DarkSkyDashExtension"
+    }
+
     /**
      * Called when the DashClock app process is requesting that the extension provide updated
      * information to show to the user. Implementations can choose to do nothing, or more commonly,
@@ -45,9 +52,18 @@ class DarkSkyDashExtension : DashClockExtension() {
     }
 
     private fun onLocationReceived(latitude: Double, longitude: Double) {
-        val weatherResult = ApiClient.darkSkyService.getForecast(String.format("%.4f,%.4f", latitude, longitude)).execute()
-        val current = weatherResult.body()?.currently
-        val daily = weatherResult.body()?.daily
+        val formattedLocation = String.format("%.4f,%.4f", latitude, longitude)
+        Log.v(TAG, "Getting weather for " + formattedLocation)
+        
+        thread {
+            val weatherResult = ApiClient.darkSkyService.getForecast(formattedLocation).execute()
+            onApiResponse(weatherResult.body())
+        }.start()
+    }
+
+    private fun onApiResponse(weatherResult: WeatherResult?) {
+        val current = weatherResult?.currently
+        val daily = weatherResult?.daily
         val currentTemp: String
         val iconDrawable: Int
         val currentCondition: String
@@ -83,7 +99,7 @@ class DarkSkyDashExtension : DashClockExtension() {
         }
 
         val location: String
-        val address = Geocoder(applicationContext, Locale.getDefault()).getFromLocation(latitude, longitude, 1)
+        val address = Geocoder(applicationContext, Locale.getDefault()).getFromLocation(weatherResult?.latitude?.toDouble(), weatherResult?.longitude?.toDouble(), 1)
 
         when (address != null && !address.isEmpty()) {
             true -> {
@@ -105,7 +121,7 @@ class DarkSkyDashExtension : DashClockExtension() {
     }
 
     private fun onLocationFailed(exception: Exception) {
-
+        Log.e(TAG, "unable to get location", exception)
     }
 
     private fun onPermissionMissing() {
