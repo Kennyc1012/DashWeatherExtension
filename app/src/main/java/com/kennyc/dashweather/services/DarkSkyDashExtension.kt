@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.location.Geocoder
+import android.preference.PreferenceManager
 import android.support.v4.content.ContextCompat
 import android.util.Log
 import com.google.android.apps.dashclock.api.DashClockExtension
@@ -93,12 +94,14 @@ class DarkSkyDashExtension : DashClockExtension() {
         Log.v(TAG, "Getting weather for " + formattedLocation)
 
         thread {
-            val weatherResult = ApiClient.darkSkyService.getForecast(formattedLocation).execute()
-            onApiResponse(weatherResult.body())
+            val imperial = PreferenceManager.getDefaultSharedPreferences(applicationContext).getBoolean(getString(R.string.pref_key_use_imperial), true)
+            val unit = if (imperial) "us" else "si"
+            val weatherResult = ApiClient.darkSkyService.getForecast(formattedLocation, unit).execute()
+            onApiResponse(weatherResult.body(), imperial)
         }
     }
 
-    private fun onApiResponse(weatherResult: WeatherResult?) {
+    private fun onApiResponse(weatherResult: WeatherResult?, usesImerpal: Boolean) {
         val current = weatherResult?.currently
         val daily = weatherResult?.daily
         val currentTemp: String
@@ -106,9 +109,8 @@ class DarkSkyDashExtension : DashClockExtension() {
         val currentCondition: String
 
         if (current != null) {
-            // TODO Determine temperature units
             val temp = Math.round(current.temperature)
-            currentTemp = getString(R.string.temp_F, temp)
+            currentTemp = getString(if (usesImerpal) R.string.temp_F else R.string.temp_C, temp)
             iconDrawable = current.getIconDrawable()
             currentCondition = current.summary
         } else {
@@ -126,8 +128,8 @@ class DarkSkyDashExtension : DashClockExtension() {
             val tempHigh = Math.round(weather.temperatureHigh)
             val tempLow = Math.round(weather.temperatureLow)
             val humidityConversion = Math.round(weather.humidity * 100)
-            high = getString(R.string.temp_F, tempHigh)
-            low = getString(R.string.temp_F, tempLow)
+            high = getString(if (usesImerpal) R.string.temp_F else R.string.temp_C, tempHigh)
+            low = getString(if (usesImerpal) R.string.temp_F else R.string.temp_C, tempLow)
             humidity = getString(R.string.humidity, humidityConversion) + "%"
         } else {
             high = "???"
