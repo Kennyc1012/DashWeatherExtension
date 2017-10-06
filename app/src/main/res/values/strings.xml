@@ -7,4 +7,6 @@
     <string name="humidity">Humidity: %d</string>
     <string name="permission_title">Permission Needed</string>
     <string name="permission_body">Location permission is required</string>
+    <string name="error_no_location">Location not found</string>
+    <string name="error_no_location_desc">Unable to determine your location</string>
 </resources>

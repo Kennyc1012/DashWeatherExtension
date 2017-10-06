@@ -54,7 +54,7 @@ class DarkSkyDashExtension : DashClockExtension() {
     private fun onLocationReceived(latitude: Double, longitude: Double) {
         val formattedLocation = String.format("%.4f,%.4f", latitude, longitude)
         Log.v(TAG, "Getting weather for " + formattedLocation)
-        
+
         thread {
             val weatherResult = ApiClient.darkSkyService.getForecast(formattedLocation).execute()
             onApiResponse(weatherResult.body())
@@ -122,6 +122,12 @@ class DarkSkyDashExtension : DashClockExtension() {
 
     private fun onLocationFailed(exception: Exception) {
         Log.e(TAG, "unable to get location", exception)
+        publishUpdate(ExtensionData()
+                .visible(true)
+                .icon(R.drawable.ic_map_marker_off_black_24dp)
+                .status(getString(R.string.error_no_location))
+                .expandedTitle(getString(R.string.error_no_location))
+                .expandedBody(getString(R.string.error_no_location_desc)))
     }
 
     private fun onPermissionMissing() {
