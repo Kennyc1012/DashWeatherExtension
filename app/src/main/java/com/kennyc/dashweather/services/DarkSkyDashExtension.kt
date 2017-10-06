@@ -42,6 +42,8 @@ class DarkSkyDashExtension : DashClockExtension() {
             fusedLocation.lastLocation.addOnSuccessListener { location ->
                 if (location != null) {
                     onLocationReceived(location.latitude, location.longitude)
+                } else {
+                    onLocationFailed(NullPointerException("No location received"))
                 }
             }.addOnFailureListener { exception ->
                 onLocationFailed(exception)
@@ -58,7 +60,7 @@ class DarkSkyDashExtension : DashClockExtension() {
         thread {
             val weatherResult = ApiClient.darkSkyService.getForecast(formattedLocation).execute()
             onApiResponse(weatherResult.body())
-        }.start()
+        }
     }
 
     private fun onApiResponse(weatherResult: WeatherResult?) {
