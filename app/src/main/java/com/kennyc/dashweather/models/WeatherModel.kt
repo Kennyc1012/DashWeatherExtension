@@ -17,6 +17,8 @@ open class WeatherModel {
 
     open var humidity: Float = 0.0f
 
+    open var uvIndex: Int = 0
+
     open var icon: String? = null
 
     open var summary: String = ""

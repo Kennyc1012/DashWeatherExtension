@@ -2,6 +2,7 @@
     <string name="app_name">DashWeather</string>
     <string name="extension_description">Display the weather of your current location</string>
     <string name="title_activity_main">MainActivity</string>
+    <string name="title_settings">DashWeather Settings</string>
     <string name="high_low">High: %s, Low: %s</string>
     <string name="temp_F">%d&#176;F</string>
     <string name="temp_C">%d&#176;C</string>
@@ -10,4 +11,18 @@
     <string name="permission_body">Location permission is required</string>
     <string name="error_no_location">Location not found</string>
     <string name="error_no_location_desc">Unable to determine your location</string>
+
+    <!-- Prefernces -->
+    <string name="preference_cat_general">General</string>
+    <string name="preference_use_imperial">Use Imperial Units</string>
+    <string name="preference_imperial_on">Temperatures will be shown as 65&#176;F</string>
+    <string name="preference_imperial_off">Temperatures will be shown as 18&#176;C</string>
+    <string name="preference_update_frequency">Update Frequency</string>
+    <string-array name="preference_update_frequency_values">
+        <item>No limit</item>
+        <item>1 hour</item>
+        <item>3 hours</item>
+        <item>6 hours</item>
+    </string-array>
+
 </resources>
