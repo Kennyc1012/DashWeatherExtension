@@ -1,6 +1,10 @@
 package com.kennyc.dashweather.services
 
 import android.Manifest
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.support.v4.content.ContextCompat
@@ -21,6 +25,36 @@ import kotlin.concurrent.thread
 class DarkSkyDashExtension : DashClockExtension() {
     companion object {
         const val TAG = "DarkSkyDashExtension"
+        const val INTENT_ACTION = "com.kennyc.dashweather.refresh"
+    }
+
+    private var broadcastReceiver: BroadcastReceiver? = null
+
+    override fun onInitialize(isReconnect: Boolean) {
+        Log.v(TAG, "onInitialize")
+        super.onInitialize(isReconnect)
+        if (broadcastReceiver != null) {
+            try {
+                unregisterReceiver(broadcastReceiver)
+            } catch (ex: Exception) {
+                Log.e(TAG, "Unable to unregister receiver", ex)
+            }
+        }
+
+        broadcastReceiver = DashClockReceiver()
+        registerReceiver(broadcastReceiver, IntentFilter(INTENT_ACTION))
+    }
+
+    override fun onDestroy() {
+        Log.v(TAG, "onDestroy")
+        super.onDestroy()
+        if (broadcastReceiver != null) {
+            try {
+                unregisterReceiver(broadcastReceiver)
+            } catch (ex: Exception) {
+                Log.e(TAG, "Unable to unregister receiver:", ex)
+            }
+        }
     }
 
     /**
@@ -34,6 +68,7 @@ class DarkSkyDashExtension : DashClockExtension() {
      * constants for more details.
      */
     override fun onUpdateData(reason: Int) {
+        Log.v(TAG, "onUpdateData - reason: " + reason)
         val coarsePermission = ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_COARSE_LOCATION)
         val finePermission = ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_FINE_LOCATION)
 
@@ -140,5 +175,11 @@ class DarkSkyDashExtension : DashClockExtension() {
                 .expandedTitle(getString(R.string.permission_title))
                 .expandedBody(getString(R.string.permission_body))
                 /* TODO .clickIntent()*/)
+    }
+
+    inner class DashClockReceiver : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            onUpdateData(DashClockExtension.UPDATE_REASON_MANUAL)
+        }
     }
 }
