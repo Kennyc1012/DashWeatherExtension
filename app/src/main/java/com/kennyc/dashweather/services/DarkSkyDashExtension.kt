@@ -14,6 +14,7 @@ import com.google.android.apps.dashclock.api.DashClockExtension
 import com.google.android.apps.dashclock.api.ExtensionData
 import com.google.android.gms.location.LocationServices
 import com.kennyc.dashweather.R
+import com.kennyc.dashweather.SettingsActivity
 import com.kennyc.dashweather.api.ApiClient
 import com.kennyc.dashweather.api.WeatherResult
 import java.util.*
@@ -27,6 +28,10 @@ class DarkSkyDashExtension : DashClockExtension() {
     companion object {
         const val TAG = "DarkSkyDashExtension"
         const val INTENT_ACTION = "com.kennyc.dashweather.refresh"
+
+        fun sendBroadcast(context: Context) {
+            context.sendBroadcast(Intent(INTENT_ACTION))
+        }
     }
 
     private var broadcastReceiver: BroadcastReceiver? = null
@@ -151,6 +156,7 @@ class DarkSkyDashExtension : DashClockExtension() {
 
         publishUpdate(ExtensionData()
                 .visible(true)
+                .clickIntent(Intent(INTENT_ACTION))
                 .icon(iconDrawable)
                 .status(currentTemp)
                 .expandedTitle(currentTemp + " - " + currentCondition)
@@ -176,7 +182,7 @@ class DarkSkyDashExtension : DashClockExtension() {
                 .status(getString(R.string.permission_title))
                 .expandedTitle(getString(R.string.permission_title))
                 .expandedBody(getString(R.string.permission_body))
-                /* TODO .clickIntent()*/)
+                .clickIntent(SettingsActivity.createIntent(applicationContext, true)))
     }
 
     inner class DashClockReceiver : BroadcastReceiver() {

@@ -9,4 +9,5 @@
         <item>2</item>
         <item>3</item>
     </string-array>
+    <string name="pref_key_permission">pref_location_permission</string>
 </resources>
