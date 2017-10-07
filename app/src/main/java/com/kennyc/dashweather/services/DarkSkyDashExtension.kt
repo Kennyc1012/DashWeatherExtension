@@ -108,40 +108,41 @@ class DarkSkyDashExtension : DashClockExtension() {
         }
     }
 
-    private fun onApiResponse(weatherResult: WeatherResult?, usesImerpal: Boolean) {
+    private fun onApiResponse(weatherResult: WeatherResult?, usesImerpial: Boolean) {
         val current = weatherResult?.currently
         val daily = weatherResult?.daily
         val currentTemp: String
         val iconDrawable: Int
         val currentCondition: String
+        val currentHumidty: String
 
         if (current != null) {
             val temp = Math.round(current.temperature)
-            currentTemp = getString(if (usesImerpal) R.string.temp_F else R.string.temp_C, temp)
+            currentTemp = getString(if (usesImerpial) R.string.temp_F else R.string.temp_C, temp)
             iconDrawable = current.getIconDrawable()
             currentCondition = current.summary
+            val humidityConversion = Math.round(current.humidity * 100)
+            currentHumidty = getString(R.string.humidity, humidityConversion) + "%"
         } else {
             currentTemp = "???"
             iconDrawable = R.drawable.ic_weather_sunny_black_24dp
             currentCondition = "???"
+            currentHumidty = "???"
         }
 
         val high: String
         val low: String
-        val humidity: String
 
         if (!daily?.data?.isEmpty()!!) {
             val weather = daily.data!!.get(0)
             val tempHigh = Math.round(weather.temperatureHigh)
             val tempLow = Math.round(weather.temperatureLow)
             val humidityConversion = Math.round(weather.humidity * 100)
-            high = getString(if (usesImerpal) R.string.temp_F else R.string.temp_C, tempHigh)
-            low = getString(if (usesImerpal) R.string.temp_F else R.string.temp_C, tempLow)
-            humidity = getString(R.string.humidity, humidityConversion) + "%"
+            high = getString(if (usesImerpial) R.string.temp_F else R.string.temp_C, tempHigh)
+            low = getString(if (usesImerpial) R.string.temp_F else R.string.temp_C, tempLow)
         } else {
             high = "???"
             low = "???"
-            humidity = "???"
         }
 
         val location: String
@@ -163,7 +164,7 @@ class DarkSkyDashExtension : DashClockExtension() {
                 .status(currentTemp)
                 .expandedTitle(currentTemp + " - " + currentCondition)
                 .expandedBody(getString(R.string.high_low, high, low)
-                        + "\n" + humidity
+                        + "\n" + currentHumidty
                         + "\n" + location))
     }
 
