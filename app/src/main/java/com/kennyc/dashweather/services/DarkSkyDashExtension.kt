@@ -9,6 +9,7 @@ import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.preference.PreferenceManager
 import android.support.v4.content.ContextCompat
+import android.text.format.DateUtils
 import android.util.Log
 import com.google.android.apps.dashclock.api.DashClockExtension
 import com.google.android.apps.dashclock.api.ExtensionData
@@ -18,6 +19,7 @@ import com.kennyc.dashweather.SettingsActivity
 import com.kennyc.dashweather.api.ApiClient
 import com.kennyc.dashweather.api.WeatherResult
 import retrofit2.Response
+import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.concurrent.thread
 
@@ -114,7 +116,8 @@ class DarkSkyDashExtension : DashClockExtension() {
         val currentTemp: String
         val iconDrawable: Int
         val currentCondition: String
-        val currentHumidty: String
+        val currentHumidity: String
+        val timeStamp: String
 
         if (current != null) {
             val temp = Math.round(current.temperature)
@@ -122,12 +125,14 @@ class DarkSkyDashExtension : DashClockExtension() {
             iconDrawable = current.getIconDrawable()
             currentCondition = current.summary
             val humidityConversion = Math.round(current.humidity * 100)
-            currentHumidty = getString(R.string.humidity, humidityConversion) + "%"
+            currentHumidity = getString(R.string.humidity, humidityConversion) + "%"
+            timeStamp = SimpleDateFormat("HH:mm a", Locale.getDefault()).format(Date(current.time * DateUtils.SECOND_IN_MILLIS))
         } else {
             currentTemp = "???"
             iconDrawable = R.drawable.ic_weather_sunny_black_24dp
             currentCondition = "???"
-            currentHumidty = "???"
+            currentHumidity = "???"
+            timeStamp = "???"
         }
 
         val high: String
@@ -137,7 +142,6 @@ class DarkSkyDashExtension : DashClockExtension() {
             val weather = daily.data!!.get(0)
             val tempHigh = Math.round(weather.temperatureHigh)
             val tempLow = Math.round(weather.temperatureLow)
-            val humidityConversion = Math.round(weather.humidity * 100)
             high = getString(if (usesImerpial) R.string.temp_F else R.string.temp_C, tempHigh)
             low = getString(if (usesImerpial) R.string.temp_F else R.string.temp_C, tempLow)
         } else {
@@ -164,8 +168,8 @@ class DarkSkyDashExtension : DashClockExtension() {
                 .status(currentTemp)
                 .expandedTitle(currentTemp + " - " + currentCondition)
                 .expandedBody(getString(R.string.high_low, high, low)
-                        + "\n" + currentHumidty
-                        + "\n" + location))
+                        + "\n" + currentHumidity
+                        + "\n" + timeStamp + " - " + location))
     }
 
     private fun onLocationFailed(exception: Exception) {
