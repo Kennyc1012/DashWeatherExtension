@@ -17,6 +17,7 @@ import com.kennyc.dashweather.R
 import com.kennyc.dashweather.SettingsActivity
 import com.kennyc.dashweather.api.ApiClient
 import com.kennyc.dashweather.api.WeatherResult
+import retrofit2.Response
 import java.util.*
 import kotlin.concurrent.thread
 
@@ -102,6 +103,7 @@ class DarkSkyDashExtension : DashClockExtension() {
             val imperial = PreferenceManager.getDefaultSharedPreferences(applicationContext).getBoolean(getString(R.string.pref_key_use_imperial), true)
             val unit = if (imperial) "us" else "si"
             val weatherResult = ApiClient.darkSkyService.getForecast(formattedLocation, unit).execute()
+            logApiResponse(weatherResult)
             onApiResponse(weatherResult.body(), imperial)
         }
     }
@@ -183,6 +185,12 @@ class DarkSkyDashExtension : DashClockExtension() {
                 .expandedTitle(getString(R.string.permission_title))
                 .expandedBody(getString(R.string.permission_body))
                 .clickIntent(SettingsActivity.createIntent(applicationContext, true)))
+    }
+
+    private fun logApiResponse(response: Response<WeatherResult>) {
+        val headers = response.headers()
+        val apiCalls = headers.get("x-forecast-api-calls")
+        Log.i(TAG, "Api calls made today: " + apiCalls)
     }
 
     inner class DashClockReceiver : BroadcastReceiver() {
