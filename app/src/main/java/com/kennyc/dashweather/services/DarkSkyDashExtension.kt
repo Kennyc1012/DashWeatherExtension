@@ -9,7 +9,6 @@ import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.preference.PreferenceManager
 import android.support.v4.content.ContextCompat
-import android.text.format.DateUtils
 import android.util.Log
 import com.google.android.apps.dashclock.api.DashClockExtension
 import com.google.android.apps.dashclock.api.ExtensionData
@@ -19,7 +18,6 @@ import com.kennyc.dashweather.SettingsActivity
 import com.kennyc.dashweather.api.ApiClient
 import com.kennyc.dashweather.api.WeatherResult
 import retrofit2.Response
-import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.concurrent.thread
 
@@ -117,7 +115,6 @@ class DarkSkyDashExtension : DashClockExtension() {
         val iconDrawable: Int
         val currentCondition: String
         val currentHumidity: String
-        val timeStamp: String
 
         if (current != null) {
             val temp = Math.round(current.temperature)
@@ -126,13 +123,11 @@ class DarkSkyDashExtension : DashClockExtension() {
             currentCondition = current.summary
             val humidityConversion = Math.round(current.humidity * 100)
             currentHumidity = getString(R.string.humidity, humidityConversion) + "%"
-            timeStamp = SimpleDateFormat("HH:mm a", Locale.getDefault()).format(Date(current.time * DateUtils.SECOND_IN_MILLIS))
         } else {
             currentTemp = "???"
             iconDrawable = R.drawable.ic_weather_sunny_black_24dp
             currentCondition = "???"
             currentHumidity = "???"
-            timeStamp = "???"
         }
 
         val high: String
@@ -169,7 +164,7 @@ class DarkSkyDashExtension : DashClockExtension() {
                 .expandedTitle(currentTemp + " - " + currentCondition)
                 .expandedBody(getString(R.string.high_low, high, low)
                         + "\n" + currentHumidity
-                        + "\n" + timeStamp + " - " + location))
+                        + "\n" + location))
     }
 
     private fun onLocationFailed(exception: Exception) {
