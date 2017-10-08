@@ -1,20 +1,19 @@
 package com.kennyc.dashweather.services
 
 import android.Manifest
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.content.*
 import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.preference.PreferenceManager
 import android.support.v4.content.ContextCompat
+import android.text.format.DateUtils
 import android.util.Log
 import com.google.android.apps.dashclock.api.DashClockExtension
 import com.google.android.apps.dashclock.api.ExtensionData
 import com.google.android.gms.location.LocationServices
 import com.kennyc.dashweather.R
 import com.kennyc.dashweather.SettingsActivity
+import com.kennyc.dashweather.SettingsFragment
 import com.kennyc.dashweather.api.ApiClient
 import com.kennyc.dashweather.api.WeatherResult
 import retrofit2.Response
@@ -27,8 +26,9 @@ import kotlin.concurrent.thread
  */
 class DarkSkyDashExtension : DashClockExtension() {
     companion object {
+        const val KEY_LAST_UPDATED = "com.kennyc.dashweather.LAST_UPDATE"
         const val TAG = "DarkSkyDashExtension"
-        const val INTENT_ACTION = "com.kennyc.dashweather.refresh"
+        const val INTENT_ACTION = "com.kennyc.dashweather.REFRESH"
 
         fun sendBroadcast(context: Context) {
             context.sendBroadcast(Intent(INTENT_ACTION))
@@ -76,22 +76,27 @@ class DarkSkyDashExtension : DashClockExtension() {
      */
     override fun onUpdateData(reason: Int) {
         Log.v(TAG, "onUpdateData - reason: " + reason)
-        val coarsePermission = ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_COARSE_LOCATION)
-        val finePermission = ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_FINE_LOCATION)
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
 
-        if (coarsePermission == PackageManager.PERMISSION_GRANTED || finePermission == PackageManager.PERMISSION_GRANTED) {
-            val fusedLocation = LocationServices.getFusedLocationProviderClient(applicationContext)
-            fusedLocation.lastLocation.addOnSuccessListener { location ->
-                if (location != null) {
-                    onLocationReceived(location.latitude, location.longitude)
-                } else {
-                    onLocationFailed(NullPointerException("No location received"))
+        if (reason == UPDATE_REASON_MANUAL || shouldUpdate(sharedPreferences)) {
+            sharedPreferences.edit().putLong(KEY_LAST_UPDATED, System.currentTimeMillis()).apply()
+            val coarsePermission = ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_COARSE_LOCATION)
+            val finePermission = ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_FINE_LOCATION)
+
+            if (coarsePermission == PackageManager.PERMISSION_GRANTED || finePermission == PackageManager.PERMISSION_GRANTED) {
+                val fusedLocation = LocationServices.getFusedLocationProviderClient(applicationContext)
+                fusedLocation.lastLocation.addOnSuccessListener { location ->
+                    if (location != null) {
+                        onLocationReceived(location.latitude, location.longitude)
+                    } else {
+                        onLocationFailed(NullPointerException("No location received"))
+                    }
+                }.addOnFailureListener { exception ->
+                    onLocationFailed(exception)
                 }
-            }.addOnFailureListener { exception ->
-                onLocationFailed(exception)
+            } else {
+                onPermissionMissing()
             }
-        } else {
-            onPermissionMissing()
         }
     }
 
@@ -191,6 +196,21 @@ class DarkSkyDashExtension : DashClockExtension() {
         val headers = response.headers()
         val apiCalls = headers.get("x-forecast-api-calls")
         Log.i(TAG, "Api calls made today: " + apiCalls)
+    }
+
+    private fun shouldUpdate(sharedPreferences: SharedPreferences): Boolean {
+        val currentTime = System.currentTimeMillis()
+        val updateFrequency = sharedPreferences.getString(getString(R.string.pref_key_update_frequency), SettingsFragment.UPDATE_FREQUENCY_1_HOUR)
+        val lastUpdate = sharedPreferences.getLong(KEY_LAST_UPDATED, 0)
+
+        when (updateFrequency) {
+            SettingsFragment.UPDATE_FREQUENCY_NO_LIMIT -> return true
+            SettingsFragment.UPDATE_FREQUENCY_1_HOUR -> return currentTime - lastUpdate > DateUtils.HOUR_IN_MILLIS
+            SettingsFragment.UPDATE_FREQUENCY_3_HOURS -> return currentTime - lastUpdate > DateUtils.HOUR_IN_MILLIS * 3
+            SettingsFragment.UPDATE_FREQUENCY_4_HOURS -> return currentTime - lastUpdate > DateUtils.HOUR_IN_MILLIS * 4
+        }
+
+        return false
     }
 
     inner class DashClockReceiver : BroadcastReceiver() {
