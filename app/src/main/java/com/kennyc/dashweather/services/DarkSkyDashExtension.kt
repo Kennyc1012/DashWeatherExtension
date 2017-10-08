@@ -4,6 +4,9 @@ import android.Manifest
 import android.content.*
 import android.content.pm.PackageManager
 import android.location.Geocoder
+import android.net.ConnectivityManager
+import android.os.Build
+import android.os.PowerManager
 import android.preference.PreferenceManager
 import android.support.v4.content.ContextCompat
 import android.text.format.DateUtils
@@ -199,6 +202,25 @@ class DarkSkyDashExtension : DashClockExtension() {
     }
 
     private fun shouldUpdate(sharedPreferences: SharedPreferences): Boolean {
+        // Check if data saver us in
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            val connMgr = applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+            if (connMgr.isActiveNetworkMetered && connMgr.restrictBackgroundStatus == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED) {
+                Log.v(TAG, "Data saver enabled and on a metered network, skipping update")
+                return false
+            }
+        }
+
+        // Check if battery saver is enabled
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            val powerManager = applicationContext.getSystemService(Context.POWER_SERVICE) as PowerManager
+            if (powerManager.isPowerSaveMode) {
+                Log.v(TAG, "Battery saver enabled, skipping update")
+                return false
+            }
+        }
+
         val currentTime = System.currentTimeMillis()
         val updateFrequency = sharedPreferences.getString(getString(R.string.pref_key_update_frequency), SettingsFragment.UPDATE_FREQUENCY_1_HOUR)
         val lastUpdate = sharedPreferences.getLong(KEY_LAST_UPDATED, 0)
