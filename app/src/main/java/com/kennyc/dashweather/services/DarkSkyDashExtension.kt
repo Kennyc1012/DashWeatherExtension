@@ -202,7 +202,7 @@ class DarkSkyDashExtension : DashClockExtension() {
     }
 
     private fun shouldUpdate(sharedPreferences: SharedPreferences): Boolean {
-        // Check if data saver us in
+        // Check if data saver is on
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             val connMgr = applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
