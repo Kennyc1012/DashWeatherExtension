@@ -52,7 +52,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
     }
 
     fun onPermissionUpdated(available: Boolean) {
-        val stringRes = if (available) R.string.pref_permission_granted else R.string.pref_permission_declined
+        val stringRes = if (available) R.string.preference_permission_granted else R.string.preference_permission_declined
         findPreference(getString(R.string.pref_key_permission)).setSummary(stringRes)
     }
 }

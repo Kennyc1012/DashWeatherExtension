@@ -17,11 +17,43 @@
 
     </android.support.v7.preference.PreferenceCategory>
 
+    <android.support.v7.preference.PreferenceCategory android:title="@string/preference_cat_appearance">
+
+        <android.support.v7.preference.SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="@string/pref_key_show_location"
+            android:title="@string/preference_show_high_low" />
+
+        <android.support.v7.preference.SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="@string/pref_key_show_high_low"
+            android:title="@string/preference_show_high_low" />
+
+
+        <android.support.v7.preference.SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="@string/pref_key_invert_high_low"
+            android:title="@string/preference_high_low_invert" />
+
+        <android.support.v7.preference.SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="@string/pref_key_show_humidity"
+            android:title="@string/preference_show_humidity" />
+
+
+        <android.support.v7.preference.SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="@string/pref_key_show_uv"
+            android:title="@string/preference_show_uv" />
+
+
+    </android.support.v7.preference.PreferenceCategory>
+
     <android.support.v7.preference.PreferenceCategory android:title="@string/preference_cat_permissions">
 
         <android.support.v7.preference.Preference
             android:key="@string/pref_key_permission"
-            android:title="@string/pref_permission" />
+            android:title="@string/preference_permission" />
 
     </android.support.v7.preference.PreferenceCategory>
 
