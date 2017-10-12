@@ -8,6 +8,7 @@ import android.net.ConnectivityManager
 import android.os.Build
 import android.os.PowerManager
 import android.preference.PreferenceManager
+import android.support.annotation.Nullable
 import android.support.v4.content.ContextCompat
 import android.text.format.DateUtils
 import android.util.Log
@@ -19,6 +20,8 @@ import com.kennyc.dashweather.SettingsActivity
 import com.kennyc.dashweather.SettingsFragment
 import com.kennyc.dashweather.api.ApiClient
 import com.kennyc.dashweather.api.WeatherResult
+import com.kennyc.dashweather.models.DailyWeatherModel
+import com.kennyc.dashweather.models.WeatherModel
 import retrofit2.Response
 import java.util.*
 import kotlin.concurrent.thread
@@ -116,53 +119,49 @@ class DarkSkyDashExtension : DashClockExtension() {
         }
     }
 
-    private fun onApiResponse(weatherResult: WeatherResult?, usesImerpial: Boolean) {
+    private fun onApiResponse(weatherResult: WeatherResult?, usesImperial: Boolean) {
         val current = weatherResult?.currently
         val daily = weatherResult?.daily
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         val currentTemp: String
         val iconDrawable: Int
         val currentCondition: String
-        val currentHumidity: String
 
         if (current != null) {
             val temp = Math.round(current.temperature)
-            currentTemp = getString(if (usesImerpial) R.string.temp_F else R.string.temp_C, temp)
+            currentTemp = getString(if (usesImperial) R.string.temp_F else R.string.temp_C, temp)
             iconDrawable = current.getIconDrawable()
             currentCondition = current.summary
-            val humidityConversion = Math.round(current.humidity * 100)
-            currentHumidity = getString(R.string.humidity, humidityConversion) + "%"
         } else {
             currentTemp = "???"
             iconDrawable = R.drawable.ic_weather_sunny_black_24dp
             currentCondition = "???"
-            currentHumidity = "???"
         }
 
-        val high: String
-        val low: String
+        val expandedBody = StringBuilder()
+        val highLow = getHighLow(sharedPreferences, daily, usesImperial)
+        if (highLow != null) expandedBody.append(highLow)
 
-        if (!daily?.data?.isEmpty()!!) {
-            val weather = daily.data!!.get(0)
-            val tempHigh = Math.round(weather.temperatureHigh)
-            val tempLow = Math.round(weather.temperatureLow)
-            high = getString(if (usesImerpial) R.string.temp_F else R.string.temp_C, tempHigh)
-            low = getString(if (usesImerpial) R.string.temp_F else R.string.temp_C, tempLow)
-        } else {
-            high = "???"
-            low = "???"
+        val humidity = getHumidity(sharedPreferences, current)
+        if (humidity != null) {
+            if (expandedBody.isNotEmpty()) expandedBody.append("\n")
+            expandedBody.append(humidity)
         }
 
-        val location: String
-        val address = Geocoder(applicationContext, Locale.getDefault()).getFromLocation(weatherResult?.latitude?.toDouble(), weatherResult?.longitude?.toDouble(), 1)
-
-        when (address != null && !address.isEmpty()) {
-            true -> {
-                val localAddress = address[0]
-                location = localAddress.locality + ", " + localAddress.adminArea
-            }
-
-            false -> location = "???"
+        val uvIndex = getUVIndex(sharedPreferences, current)
+        if (uvIndex != null) {
+            if (expandedBody.isNotEmpty()) expandedBody.append("\n")
+            expandedBody.append(uvIndex)
         }
+
+        // TODO Better check this
+        val location = getLastLocation(sharedPreferences, weatherResult!!.latitude, weatherResult!!.longitude)
+        if (location != null) {
+            if (expandedBody.isNotEmpty()) expandedBody.append("\n")
+            expandedBody.append(location)
+        }
+
+        val body = expandedBody.toString()
 
         publishUpdate(ExtensionData()
                 .visible(true)
@@ -170,9 +169,7 @@ class DarkSkyDashExtension : DashClockExtension() {
                 .icon(iconDrawable)
                 .status(currentTemp)
                 .expandedTitle(currentTemp + " - " + currentCondition)
-                .expandedBody(getString(R.string.high_low, high, low)
-                        + "\n" + currentHumidity
-                        + "\n" + location))
+                .expandedBody(body))
     }
 
     private fun onLocationFailed(exception: Exception) {
@@ -233,6 +230,77 @@ class DarkSkyDashExtension : DashClockExtension() {
         }
 
         return false
+    }
+
+    @Nullable
+    private fun getLastLocation(pref: SharedPreferences, latitude: Float, longitude: Float): String? {
+        if (pref.getBoolean(getString(R.string.pref_key_show_location), true)) {
+            val location: String
+            val address = Geocoder(applicationContext, Locale.getDefault()).getFromLocation(latitude.toDouble(), longitude.toDouble(), 1)
+
+            when (address != null && !address.isEmpty()) {
+                true -> {
+                    val localAddress = address[0]
+                    return localAddress.locality + ", " + localAddress.adminArea
+                }
+
+                false -> return "???"
+            }
+        }
+
+        return null
+    }
+
+    @Nullable
+    private fun getHighLow(pref: SharedPreferences, model: DailyWeatherModel?, usesImperial: Boolean): String? {
+        if (pref.getBoolean(getString(R.string.pref_key_show_high_low), true)) {
+            val invert = pref.getBoolean(getString(R.string.pref_key_invert_high_low), false)
+            val high: String
+            val low: String
+
+            if (model != null) {
+                val tempHigh = Math.round(model.data?.get(0)!!.temperatureHigh)
+                val tempLow = Math.round(model.data?.get(0)!!.temperatureLow)
+                high = getString(if (usesImperial) R.string.temp_F else R.string.temp_C, tempHigh)
+                low = getString(if (usesImperial) R.string.temp_F else R.string.temp_C, tempLow)
+            } else {
+                high = "???"
+                low = "???"
+            }
+
+            val stringResource = if (invert) R.string.high_low_invert else R.string.high_low
+            return getString(stringResource, if (invert) low else high, if (invert) high else low)
+        }
+
+        return null
+    }
+
+    @Nullable
+    private fun getHumidity(pref: SharedPreferences, model: WeatherModel?): String? {
+        if (pref.getBoolean(getString(R.string.pref_key_show_humidity), true)) {
+
+            return if (model != null) {
+                val humidity = Math.round(model.humidity * 100)
+                getString(R.string.humidity, humidity) + "%"
+            } else {
+                "???"
+            }
+        }
+
+        return null
+    }
+
+    @Nullable
+    private fun getUVIndex(pref: SharedPreferences, model: WeatherModel?): String? {
+        if (pref.getBoolean(getString(R.string.pref_key_show_uv), true)) {
+            return if (model != null) {
+                getString(R.string.uv_index, model.uvIndex)
+            } else {
+                "???"
+            }
+        }
+
+        return null
     }
 
     inner class DashClockReceiver : BroadcastReceiver() {

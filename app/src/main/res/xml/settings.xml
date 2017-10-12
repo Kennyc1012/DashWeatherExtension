@@ -22,7 +22,7 @@
         <android.support.v7.preference.SwitchPreferenceCompat
             android:defaultValue="true"
             android:key="@string/pref_key_show_location"
-            android:title="@string/preference_show_high_low" />
+            android:title="@string/preference_show_location" />
 
         <android.support.v7.preference.SwitchPreferenceCompat
             android:defaultValue="true"
@@ -31,7 +31,7 @@
 
 
         <android.support.v7.preference.SwitchPreferenceCompat
-            android:defaultValue="true"
+            android:defaultValue="false"
             android:key="@string/pref_key_invert_high_low"
             android:title="@string/preference_high_low_invert" />
 

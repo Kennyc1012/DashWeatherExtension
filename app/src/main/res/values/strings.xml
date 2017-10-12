@@ -4,9 +4,11 @@
     <string name="title_activity_main">MainActivity</string>
     <string name="title_settings">DashWeather Settings</string>
     <string name="high_low">High: %s, Low: %s</string>
+    <string name="high_low_invert">Low: %s, High: %s</string>
     <string name="temp_F">%d&#176;F</string>
     <string name="temp_C">%d&#176;C</string>
     <string name="humidity">Humidity: %d</string>
+    <string name="uv_index">UV Index: %d</string>
     <string name="permission_title">Permission Needed</string>
     <string name="permission_body">Location permission is required</string>
     <string name="error_no_location">Location not found</string>
