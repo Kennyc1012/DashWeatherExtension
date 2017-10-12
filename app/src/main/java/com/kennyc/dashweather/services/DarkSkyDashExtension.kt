@@ -15,6 +15,7 @@ import android.util.Log
 import com.google.android.apps.dashclock.api.DashClockExtension
 import com.google.android.apps.dashclock.api.ExtensionData
 import com.google.android.gms.location.LocationServices
+import com.kennyc.dashweather.BuildConfig
 import com.kennyc.dashweather.R
 import com.kennyc.dashweather.SettingsActivity
 import com.kennyc.dashweather.SettingsFragment
@@ -193,10 +194,12 @@ class DarkSkyDashExtension : DashClockExtension() {
     }
 
     private fun logApiResponse(response: Response<WeatherResult>) {
-        val headers = response.headers()
-        val headerNames = headers.names()
-        for (name in headerNames) Log.i(TAG, name + ": " + headers.get(name))
-        Log.i(TAG, "Response Code: " + response.code())
+        if (BuildConfig.DEBUG) {
+            val headers = response.headers()
+            val headerNames = headers.names()
+            for (name in headerNames) Log.i(TAG, name + ": " + headers.get(name))
+            Log.i(TAG, "Response Code: " + response.code())
+        }
     }
 
     private fun shouldUpdate(sharedPreferences: SharedPreferences): Boolean {
