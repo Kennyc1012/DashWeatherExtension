@@ -194,8 +194,9 @@ class DarkSkyDashExtension : DashClockExtension() {
 
     private fun logApiResponse(response: Response<WeatherResult>) {
         val headers = response.headers()
-        val apiCalls = headers.get("x-forecast-api-calls")
-        Log.i(TAG, "Api calls made today: " + apiCalls)
+        val headerNames = headers.names()
+        for (name in headerNames) Log.i(TAG, name + ": " + headers.get(name))
+        Log.i(TAG, "Response Code: " + response.code())
     }
 
     private fun shouldUpdate(sharedPreferences: SharedPreferences): Boolean {

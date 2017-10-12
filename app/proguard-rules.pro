@@ -19,3 +19,19 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+#Okhttp3
+-dontwarn okhttp3.**
+-dontwarn okio.**
+-dontwarn javax.annotation.**
+
+#Retrofit2
+-dontnote retrofit2.Platform
+-dontwarn retrofit2.Platform$Java8
+-keepattributes Signature
+-keepattributes Exceptions
+
+# Application classes that will be deserialized over Gson
+-keep class com.kennyc.dashweather.api.WeatherResult { *; }
+-keep class com.kennyc.dashweather.models.WeatherModel { *; }
+-keep class com.kennyc.dashweather.models.DailyWeatherModel { *; }
