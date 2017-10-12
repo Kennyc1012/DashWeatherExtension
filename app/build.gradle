@@ -5,11 +5,6 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 android {
-    signingConfigs {
-        config {
-            storeFile file('/Users/kcampagna/Documents/code/DashWeatherExtension/Untitled')
-        }
-    }
     compileSdkVersion 26
     buildToolsVersion "26.0.2"
     defaultConfig {
