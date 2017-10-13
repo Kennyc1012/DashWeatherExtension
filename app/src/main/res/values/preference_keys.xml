@@ -22,4 +22,5 @@
         <item>3</item>
     </string-array>
     <string name="pref_key_invert_high_low">pref_invert_high_low</string>
+    <string name="pref_key_version">pref_version</string>
 </resources>

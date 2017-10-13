@@ -9,6 +9,8 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.preference.ListPreference
 import android.support.v7.preference.PreferenceFragmentCompat
+import android.util.Log
+
 
 /**
  * Created by kcampagna on 10/6/17.
@@ -43,12 +45,21 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val weatherDetails: MultiSelectListPreference = findPreference(detailsKey) as MultiSelectListPreference
         var savedUiPreferences = sharedPreferences.getStringSet(getString(R.string.pref_key_details),
                 setOf(SettingsFragment.WEATHER_DETAILS_HIGH_LOW, SettingsFragment.WEATHER_DETAILS_LOCATION))
-        
+
         setWeatherDetails(weatherDetails, savedUiPreferences)
         weatherDetails.setOnPreferenceChangeListener { preference, newValue ->
             setWeatherDetails(preference as MultiSelectListPreference, newValue as Set<String>)
             true
         }
+
+        val version = findPreference(getString(R.string.pref_key_version))
+        try {
+            val pInfo = activity.packageManager.getPackageInfo(activity.packageName, 0)
+            version.summary = pInfo.versionName
+        } catch (e: PackageManager.NameNotFoundException) {
+            Log.e("Settings", "Unable to get version number")
+        }
+
         checkPermissions()
     }
 

@@ -39,4 +39,7 @@
         <item>Location</item>
     </string-array>
     <string name="preference_high_low_invert">Invert High/Low Temperatures</string>
+    <string name="preference_cat_about">About</string>
+    <string name="preference_powered_by">Powered by Dark Sky</string>
+    <string name="preference_version">Version</string>
 </resources>
