@@ -124,6 +124,8 @@ class DarkSkyDashExtension : DashClockExtension() {
         val current = weatherResult?.currently
         val daily = weatherResult?.daily
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+        val uiPreferences = sharedPreferences.getStringSet(getString(R.string.pref_key_details),
+                setOf(SettingsFragment.WEATHER_DETAILS_HIGH_LOW, SettingsFragment.WEATHER_DETAILS_LOCATION))
         val currentTemp: String
         val iconDrawable: Int
         val currentCondition: String
@@ -140,23 +142,23 @@ class DarkSkyDashExtension : DashClockExtension() {
         }
 
         val expandedBody = StringBuilder()
-        val highLow = getHighLow(sharedPreferences, daily, usesImperial)
+        val highLow = getHighLow(uiPreferences, sharedPreferences.getBoolean(getString(R.string.pref_key_invert_high_low), false), daily, usesImperial)
         if (highLow != null) expandedBody.append(highLow)
 
-        val humidity = getHumidity(sharedPreferences, current)
+        val humidity = getHumidity(uiPreferences, current)
         if (humidity != null) {
             if (expandedBody.isNotEmpty()) expandedBody.append("\n")
             expandedBody.append(humidity)
         }
 
-        val uvIndex = getUVIndex(sharedPreferences, current)
+        val uvIndex = getUVIndex(uiPreferences, current)
         if (uvIndex != null) {
             if (expandedBody.isNotEmpty()) expandedBody.append("\n")
             expandedBody.append(uvIndex)
         }
 
         // TODO Better check this
-        val location = getLastLocation(sharedPreferences, weatherResult!!.latitude, weatherResult!!.longitude)
+        val location = getLastLocation(uiPreferences, weatherResult!!.latitude, weatherResult!!.longitude)
         if (location != null) {
             if (expandedBody.isNotEmpty()) expandedBody.append("\n")
             expandedBody.append(location)
@@ -237,8 +239,8 @@ class DarkSkyDashExtension : DashClockExtension() {
     }
 
     @Nullable
-    private fun getLastLocation(pref: SharedPreferences, latitude: Float, longitude: Float): String? {
-        if (pref.getBoolean(getString(R.string.pref_key_show_location), true)) {
+    private fun getLastLocation(set: Set<String>, latitude: Float, longitude: Float): String? {
+        if (set.contains(SettingsFragment.WEATHER_DETAILS_LOCATION)) {
             val location: String
             val address = Geocoder(applicationContext, Locale.getDefault()).getFromLocation(latitude.toDouble(), longitude.toDouble(), 1)
 
@@ -256,9 +258,8 @@ class DarkSkyDashExtension : DashClockExtension() {
     }
 
     @Nullable
-    private fun getHighLow(pref: SharedPreferences, model: DailyWeatherModel?, usesImperial: Boolean): String? {
-        if (pref.getBoolean(getString(R.string.pref_key_show_high_low), true)) {
-            val invert = pref.getBoolean(getString(R.string.pref_key_invert_high_low), false)
+    private fun getHighLow(set: Set<String>, invert: Boolean, model: DailyWeatherModel?, usesImperial: Boolean): String? {
+        if (set.contains(SettingsFragment.WEATHER_DETAILS_HIGH_LOW)) {
             val high: String
             val low: String
 
@@ -280,8 +281,8 @@ class DarkSkyDashExtension : DashClockExtension() {
     }
 
     @Nullable
-    private fun getHumidity(pref: SharedPreferences, model: WeatherModel?): String? {
-        if (pref.getBoolean(getString(R.string.pref_key_show_humidity), true)) {
+    private fun getHumidity(set: Set<String>, model: WeatherModel?): String? {
+        if (set.contains(SettingsFragment.WEATHER_DETAILS_HUMIDITY)) {
 
             return if (model != null) {
                 val humidity = Math.round(model.humidity * 100)
@@ -295,8 +296,8 @@ class DarkSkyDashExtension : DashClockExtension() {
     }
 
     @Nullable
-    private fun getUVIndex(pref: SharedPreferences, model: WeatherModel?): String? {
-        if (pref.getBoolean(getString(R.string.pref_key_show_uv), true)) {
+    private fun getUVIndex(set: Set<String>, model: WeatherModel?): String? {
+        if (set.contains(SettingsFragment.WEATHER_DETAILS_UV_INDEX)) {
             return if (model != null) {
                 getString(R.string.uv_index, model.uvIndex)
             } else {

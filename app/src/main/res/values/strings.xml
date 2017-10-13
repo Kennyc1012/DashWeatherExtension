@@ -31,9 +31,12 @@
     <string name="preference_permission_granted">Permission granted</string>
     <string name="preference_permission_declined">Permission not granted</string>
     <string name="preference_cat_appearance">Appearance</string>
-    <string name="preference_show_high_low">Show High/Low Temperatures</string>
+    <string name="preference_weather_details">Weather Details</string>
+    <string-array name="preference_weather_detail_items">
+        <item>High/Low temperature</item>
+        <item>UV index</item>
+        <item>Humidity percentage</item>
+        <item>Location</item>
+    </string-array>
     <string name="preference_high_low_invert">Invert High/Low Temperatures</string>
-    <string name="preference_show_uv">Show UV Index</string>
-    <string name="preference_show_humidity">Show Humidity Percentage</string>
-    <string name="preference_show_location">Show Location</string>
 </resources>

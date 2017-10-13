@@ -10,9 +10,16 @@
         <item>3</item>
     </string-array>
     <string name="pref_key_permission">pref_location_permission</string>
-    <string name="pref_key_show_high_low">pref_show_high_low</string>
+    <string name="pref_key_details">pref_show_weather_details</string>
+    <string-array name="pref_key_weather_details">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+    <string-array name="pref_key_weather_details_default">
+        <item>0</item>
+        <item>3</item>
+    </string-array>
     <string name="pref_key_invert_high_low">pref_invert_high_low</string>
-    <string name="pref_key_show_uv">pref_show_uv</string>
-    <string name="pref_key_show_humidity">pref_show_humidity</string>
-    <string name="pref_key_show_location">pref_show_location</string>
 </resources>
