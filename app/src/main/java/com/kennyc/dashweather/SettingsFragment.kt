@@ -1,6 +1,8 @@
 package com.kennyc.dashweather
 
 import android.Manifest
+import android.app.Activity
+import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.preference.PreferenceManager
@@ -54,7 +56,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         val version = findPreference(getString(R.string.pref_key_version))
         try {
-            val pInfo = activity.packageManager.getPackageInfo(activity.packageName, 0)
+            val act = activity as Activity
+            val pInfo = act.packageManager.getPackageInfo(act.packageName, 0)
             version.summary = pInfo.versionName
         } catch (e: PackageManager.NameNotFoundException) {
             Log.e("Settings", "Unable to get version number")
@@ -64,13 +67,14 @@ class SettingsFragment : PreferenceFragmentCompat() {
     }
 
     private fun checkPermissions() {
-        val coarsePermission = ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
-        val finePermission = ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        val context = activity as Context
+        val coarsePermission = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        val finePermission = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
         val hasPermission = coarsePermission || finePermission
 
         if (!hasPermission) {
             findPreference(getString(R.string.pref_key_permission)).setOnPreferenceClickListener {
-                ActivityCompat.requestPermissions(activity,
+                ActivityCompat.requestPermissions(context as Activity,
                         arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
                         SettingsActivity.PERMISSION_REQUEST_CODE)
 
