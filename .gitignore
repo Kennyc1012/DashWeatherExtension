@@ -55,6 +55,7 @@ freeline/
 freeline_project_description.json
 
 *.DS
+gradle.properties
 *.idea
 .DS_Store
 
