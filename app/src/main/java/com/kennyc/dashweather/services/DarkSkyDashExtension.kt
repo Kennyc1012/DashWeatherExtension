@@ -36,6 +36,8 @@ class DarkSkyDashExtension : DashClockExtension() {
         const val KEY_LAST_UPDATED = "com.kennyc.dashweather.LAST_UPDATE"
         const val TAG = "DarkSkyDashExtension"
         const val INTENT_ACTION = "com.kennyc.dashweather.REFRESH"
+        const val EXTRA_LATITUDE = "com.kennyc.dashweather.EXTRA_LATITUDE"
+        const val EXTRA_LONGITUDE = "com.kennyc.dashweather.EXTRA_LONGITUDE"
 
         fun sendBroadcast(context: Context) {
             context.sendBroadcast(Intent(INTENT_ACTION))
@@ -183,6 +185,8 @@ class DarkSkyDashExtension : DashClockExtension() {
                 .status(getString(R.string.error_no_location))
                 .expandedTitle(getString(R.string.error_no_location))
                 .expandedBody(getString(R.string.error_no_location_desc)))
+
+        startService(Intent(applicationContext, LocationService::class.java))
     }
 
     private fun onPermissionMissing() {
@@ -310,7 +314,13 @@ class DarkSkyDashExtension : DashClockExtension() {
 
     inner class DashClockReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            onUpdateData(DashClockExtension.UPDATE_REASON_MANUAL)
+            if (intent.hasExtra(EXTRA_LATITUDE) && intent.hasExtra(EXTRA_LATITUDE)) {
+                val latitude = intent.getDoubleExtra(EXTRA_LATITUDE, 0.0)
+                val longitude = intent.getDoubleExtra(EXTRA_LONGITUDE, 0.0)
+                onLocationReceived(latitude, longitude)
+            } else {
+                onUpdateData(DashClockExtension.UPDATE_REASON_MANUAL)
+            }
         }
     }
 }
