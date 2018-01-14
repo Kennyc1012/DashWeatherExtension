@@ -22,6 +22,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
 }
 
 dependencies {
@@ -35,4 +39,28 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
     implementation 'com.google.code.gson:gson:2.8.2'
     implementation 'com.google.android.gms:play-services-location:11.8.0'
+
+    testCompile 'junit:junit:4.12'
+    testCompile "org.mockito:mockito-core:2.8.9"
+}
+
+// add 2 task in run config to make kotlin test working for junit
+task copyTestClasses(type: Copy) {
+    from "build/tmp/kotlin-classes/debugUnitTest"
+    into "build/intermediates/classes/debug"
+}
+// for instrumented test
+task copySdkClasses(type: Copy) {
+    from "build/tmp/kotlin-classes/debug"
+    into "build/intermediates/classes/debug"
+}
+
+afterEvaluate {
+    compileDebugUnitTestSources.dependsOn copyTestClasses
+    compileDebugAndroidTestSources.dependsOn copySdkClasses
+}
+// gradle task for test all case
+task testAll(dependsOn: ['test', 'connectedAndroidTest']) {
+    group = 'custom_tasks'
+    description = "Run all tests"
 }

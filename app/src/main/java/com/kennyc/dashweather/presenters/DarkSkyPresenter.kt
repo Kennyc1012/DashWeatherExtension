@@ -91,7 +91,6 @@ class DarkSkyPresenter(val view: DarkSkyContract.View) : DarkSkyContract.Present
 
     override fun getHumidity(context: Context, userSettings: Set<String>, model: WeatherModel?): String? {
         if (userSettings.contains(SettingsFragment.WEATHER_DETAILS_HUMIDITY)) {
-
             return if (model != null) {
                 val humidity = Math.round(model.humidity * 100)
                 context.getString(R.string.humidity, humidity) + "%"
