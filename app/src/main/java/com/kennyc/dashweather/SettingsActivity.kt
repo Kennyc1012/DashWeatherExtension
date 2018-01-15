@@ -17,6 +17,8 @@ class SettingsActivity : AppCompatActivity() {
     companion object {
         const val PERMISSION_REQUEST_CODE = 1
         const val KEY_PROMPT_PERMISSIONS = "SettingsActivity.PROMPT_PERMISSIONS"
+        const val KEY_LAST_KNOWN_LATITUDE = "SettingsActivity.LAST_KNOWN_LATITUDE"
+        const val KEY_LAST__KNOWN_LONGITUDE = "SettingsActivity.LAST_KNOWN_LONGITUDE"
 
         fun createIntent(context: Context, promptPermissions: Boolean): Intent {
             return Intent(context, SettingsActivity::class.java).putExtra(KEY_PROMPT_PERMISSIONS, promptPermissions)

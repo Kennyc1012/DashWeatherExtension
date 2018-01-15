@@ -137,12 +137,18 @@ class DarkSkyDashExtension : DashClockExtension(), DarkSkyContract.View {
 
     override fun onLocationNotFound(exception: Exception?) {
         Log.e(TAG, "unable to get location", exception)
-        publishUpdate(ExtensionData()
-                .visible(true)
-                .icon(R.drawable.ic_map_marker_off_black_24dp)
-                .status(getString(R.string.error_no_location))
-                .expandedTitle(getString(R.string.error_no_location))
-                .expandedBody(getString(R.string.error_no_location_desc)))
+        val lastLocation = getLastSavedLocation()
+
+        if (lastLocation != null) {
+            Log.v(TAG, "Using previously saved location " + lastLocation)
+            presenter.onLocationReceived(applicationContext, lastLocation[0], lastLocation[1])
+        } else {
+            publishUpdate(ExtensionData()
+                    .visible(true)
+                    .icon(R.drawable.ic_map_marker_off_black_24dp)
+                    .status(getString(R.string.error_no_location))
+                    .expandedTitle(getString(R.string.error_no_location)))
+        }
 
         startService(Intent(applicationContext, LocationService::class.java))
     }
@@ -155,6 +161,22 @@ class DarkSkyDashExtension : DashClockExtension(), DarkSkyContract.View {
                 .expandedTitle(getString(R.string.permission_title))
                 .expandedBody(getString(R.string.permission_body))
                 .clickIntent(SettingsActivity.createIntent(applicationContext, true)))
+    }
+
+    /**
+     * Returns a 2 length array containing the last latitude[0] and longitude[1] saved into the SharedPreferences. Mull will be returned
+     * if no location has been saved
+     */
+    private fun getLastSavedLocation(): Array<Double>? {
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+        val latitude = sharedPreferences.getString(SettingsActivity.KEY_LAST_KNOWN_LATITUDE, null)
+        val longitude = sharedPreferences.getString(SettingsActivity.KEY_LAST__KNOWN_LONGITUDE, null)
+
+        if (latitude != null && longitude != null) {
+            return arrayOf(latitude.toDouble(), longitude.toDouble())
+        }
+
+        return null
     }
 
     inner class DashClockReceiver : BroadcastReceiver() {

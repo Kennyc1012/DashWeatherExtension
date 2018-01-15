@@ -16,6 +16,7 @@ import com.google.android.apps.dashclock.api.DashClockExtension
 import com.google.android.gms.location.LocationServices
 import com.kennyc.dashweather.BuildConfig
 import com.kennyc.dashweather.R
+import com.kennyc.dashweather.SettingsActivity
 import com.kennyc.dashweather.SettingsFragment
 import com.kennyc.dashweather.api.ApiClient
 import com.kennyc.dashweather.api.WeatherResult
@@ -55,9 +56,15 @@ class DarkSkyPresenter(val view: DarkSkyContract.View) : DarkSkyContract.Present
     }
 
     override fun onLocationReceived(context: Context, latitude: Double, longitude: Double) {
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+        sharedPreferences.edit()
+                .putString(SettingsActivity.KEY_LAST_KNOWN_LATITUDE, latitude.toString())
+                .putString(SettingsActivity.KEY_LAST__KNOWN_LONGITUDE, longitude.toString())
+                .apply()
+
         val formattedLocation = String.format("%.4f,%.4f", latitude, longitude)
         Log.v(DarkSkyDashExtension.TAG, "Getting weather for " + formattedLocation)
-        val imperial = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(context.getString(R.string.pref_key_use_imperial), true)
+        val imperial = sharedPreferences.getBoolean(context.getString(R.string.pref_key_use_imperial), true)
         val unit = if (imperial) "us" else "si"
 
         thread {
@@ -66,7 +73,7 @@ class DarkSkyPresenter(val view: DarkSkyContract.View) : DarkSkyContract.Present
             view.displayWeatherResult(weatherResult.body(), imperial)
         }
     }
-
+    
     override fun getHighLow(context: Context, userSettings: Set<String>, model: DailyWeatherModel?, invert: Boolean, usesImperial: Boolean): String? {
         if (userSettings.contains(SettingsFragment.WEATHER_DETAILS_HIGH_LOW)) {
             val high: String
