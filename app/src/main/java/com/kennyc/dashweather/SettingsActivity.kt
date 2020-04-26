@@ -5,8 +5,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import androidx.core.app.ActivityCompat
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import com.kennyc.dashweather.services.DarkSkyDashExtension
 
 /**
@@ -25,14 +25,13 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 
-    private var settingsFragment: SettingsFragment? = null
+    private lateinit var settingsFragment: SettingsFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         settingsFragment = SettingsFragment()
 
-        supportFragmentManager.
-                beginTransaction()
+        supportFragmentManager.beginTransaction()
                 .add(android.R.id.content, settingsFragment)
                 .commit()
 

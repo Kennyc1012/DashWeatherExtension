@@ -32,7 +32,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.settings)
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(activity)
+       /* val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(activity)
         val frequencyKey = getString(R.string.pref_key_update_frequency)
         val listPreference: ListPreference = findPreference(frequencyKey) as ListPreference
         listPreference.summary = listPreference.entries[sharedPreferences.getString(frequencyKey, UPDATE_FREQUENCY_1_HOUR).toInt()]
@@ -61,7 +61,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
             version.summary = pInfo.versionName
         } catch (e: PackageManager.NameNotFoundException) {
             Log.e("Settings", "Unable to get version number")
-        }
+        }*/
 
         checkPermissions()
     }

@@ -81,7 +81,7 @@ class DarkSkyDashExtension : DashClockExtension(), DarkSkyContract.View {
     }
 
     override fun displayWeatherResult(weatherResult: WeatherResult?, usesImperial: Boolean) {
-        val current = weatherResult?.currently
+       /* val current = weatherResult?.currently
         val daily = weatherResult?.daily
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         val uiPreferences = sharedPreferences.getStringSet(getString(R.string.pref_key_details),
@@ -132,7 +132,7 @@ class DarkSkyDashExtension : DashClockExtension(), DarkSkyContract.View {
                 .icon(iconDrawable)
                 .status(currentTemp)
                 .expandedTitle(currentTemp + " - " + currentCondition)
-                .expandedBody(body))
+                .expandedBody(body))*/
     }
 
     override fun onLocationNotFound(exception: Exception?) {
