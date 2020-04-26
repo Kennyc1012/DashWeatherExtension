@@ -7,7 +7,7 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import com.kennyc.dashweather.services.DarkSkyDashExtension
+import com.kennyc.dashweather.services.WeatherDashExtension
 
 /**
  * Created by kcampagna on 10/6/17.
@@ -49,7 +49,7 @@ class SettingsActivity : AppCompatActivity() {
 
         when (requestCode) {
             PERMISSION_REQUEST_CODE -> {
-                DarkSkyDashExtension.sendBroadcast(applicationContext)
+                WeatherDashExtension.sendBroadcast(applicationContext)
                 val hasPermission = grantResults.contains(PackageManager.PERMISSION_GRANTED)
                 settingsFragment?.onPermissionUpdated(hasPermission)
             }

@@ -19,6 +19,11 @@ class WeatherContract {
     }
 
     interface Presenter {
+
+        fun setView(view: View)
+
+        fun requireView(): View
+
         /**
          * Called when the extension is requesting an update
          *

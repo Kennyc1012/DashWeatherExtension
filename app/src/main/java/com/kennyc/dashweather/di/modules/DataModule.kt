@@ -7,8 +7,10 @@ import com.kennyc.dashweather.BuildConfig
 import com.kennyc.dashweather.api_owm.di.OWMComponent
 import com.kennyc.dashweather.data.LocationRepository
 import com.kennyc.dashweather.data.WeatherRepository
+import com.kennyc.dashweather.data.contract.WeatherContract
 import com.kennyc.dashweather.data_gps.GPSLocationRepository
 import com.kennyc.dashweather.data_owm.OWMWeatherRepository
+import com.kennyc.dashweather.presenters.WeatherPresenter
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -33,4 +35,10 @@ class DataModule {
     @Provides
     @Singleton
     fun providesLocationRepository(context: Context): LocationRepository = GPSLocationRepository(context)
+
+    @Provides
+    fun providesPresenter(weatherRepository: WeatherRepository,
+                          locationRepository: LocationRepository,
+                          sharedPreferences: SharedPreferences): WeatherContract.Presenter =
+            WeatherPresenter(weatherRepository, locationRepository, sharedPreferences)
 }

@@ -2,7 +2,7 @@ package com.kennyc.dashweather.di
 
 import android.content.Context
 import com.kennyc.dashweather.di.modules.DataModule
-import com.kennyc.dashweather.services.DarkSkyDashExtension
+import com.kennyc.dashweather.services.WeatherDashExtension
 import dagger.BindsInstance
 import dagger.Component
 import javax.inject.Named
@@ -12,7 +12,7 @@ import javax.inject.Singleton
 @Component(modules = [DataModule::class])
 interface AppComponent {
 
-    fun inject(service: DarkSkyDashExtension)
+    fun inject(service: WeatherDashExtension)
 
     @Component.Builder
     interface Builder {
