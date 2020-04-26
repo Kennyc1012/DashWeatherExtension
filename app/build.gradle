@@ -63,6 +63,7 @@ dependencies {
     // MODULES
     api project(':data')
     api project(':data-owm')
+    api project(':data-gps')
     api project(':api-owm')
 }
 

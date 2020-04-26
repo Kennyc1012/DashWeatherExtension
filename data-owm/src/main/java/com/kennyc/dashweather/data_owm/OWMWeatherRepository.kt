@@ -17,7 +17,9 @@ class OWMWeatherRepository constructor(private val api: OWMMapApi) : WeatherRepo
         val daily = response.daily[0].temp
         val current = response.current
 
-        return Weather(current.temp,
+        return Weather(response.lat,
+                response.lon,
+                current.temp,
                 daily.max,
                 daily.min,
                 current.uvIndex.toInt(),

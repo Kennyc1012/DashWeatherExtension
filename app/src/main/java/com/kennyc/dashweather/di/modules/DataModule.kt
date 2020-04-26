@@ -5,7 +5,9 @@ import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
 import com.kennyc.dashweather.BuildConfig
 import com.kennyc.dashweather.api_owm.di.OWMComponent
+import com.kennyc.dashweather.data.LocationRepository
 import com.kennyc.dashweather.data.WeatherRepository
+import com.kennyc.dashweather.data_gps.GPSLocationRepository
 import com.kennyc.dashweather.data_owm.OWMWeatherRepository
 import dagger.Module
 import dagger.Provides
@@ -27,4 +29,8 @@ class DataModule {
     @Provides
     @Singleton
     fun providesWeatherRepository(component: OWMComponent): WeatherRepository = OWMWeatherRepository(component.api())
+
+    @Provides
+    @Singleton
+    fun providesLocationRepository(context: Context): LocationRepository = GPSLocationRepository(context)
 }
