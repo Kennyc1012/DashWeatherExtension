@@ -23,8 +23,8 @@ class OWMWeatherRepository @Inject constructor(private val api: OWMMapApi) : Wea
         return Weather(current.temp,
                 daily.max,
                 daily.min,
-                current.uvIndex,
+                current.uvIndex.toInt(),
                 current.humidity,
-                current.weather.summary)
+                current.weather[0].summary)
     }
 }

@@ -7,4 +7,8 @@ import com.kennyc.dashweather.api_owm.model.OWMDaily
 data class OWMResponse(@SerializedName("lat") val lat: Double,
                        @SerializedName("lon") val lon: Double,
                        @SerializedName("current") val current: OWMCurrent,
-                       @SerializedName("daily") val daily: List<OWMDaily>)
+                       @SerializedName("daily") val daily: List<OWMDaily>) {
+    init {
+        require(daily.isNotEmpty())
+    }
+}

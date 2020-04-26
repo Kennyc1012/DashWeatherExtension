@@ -17,14 +17,14 @@ class OWMModule {
     @Singleton
     fun providesOkHttp(): OkHttpClient =
             OkHttpClient.Builder()
-                    .connectTimeout(20, TimeUnit.SECONDS)
+                    .connectTimeout(10, TimeUnit.SECONDS)
                     .build()
 
     @Provides
     @Singleton
     fun providesRetrofit(okHttpClient: OkHttpClient): OWMMapApi {
         return Retrofit.Builder()
-                .baseUrl("https://api.openweathermap.org/data/2.5")
+                .baseUrl("https://api.openweathermap.org/data/2.5/")
                 .client(okHttpClient)
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
