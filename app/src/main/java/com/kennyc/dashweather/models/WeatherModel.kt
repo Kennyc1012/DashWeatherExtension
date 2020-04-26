@@ -1,6 +1,6 @@
 package com.kennyc.dashweather.models
 
-import android.support.annotation.DrawableRes
+import androidx.annotation.DrawableRes
 import com.kennyc.dashweather.R
 
 /**

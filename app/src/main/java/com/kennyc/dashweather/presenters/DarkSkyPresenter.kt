@@ -9,7 +9,7 @@ import android.net.ConnectivityManager
 import android.os.Build
 import android.os.PowerManager
 import android.preference.PreferenceManager
-import android.support.v4.content.ContextCompat
+import androidx.core.content.ContextCompat
 import android.text.format.DateUtils
 import android.util.Log
 import com.google.android.apps.dashclock.api.DashClockExtension

@@ -1,54 +1,54 @@
-<android.support.v7.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <android.support.v7.preference.PreferenceCategory android:title="@string/preference_cat_general">
+    <androidx.preference.PreferenceCategory android:title="@string/preference_cat_general">
 
-        <android.support.v7.preference.SwitchPreferenceCompat
+        <androidx.preference.SwitchPreferenceCompat
             android:defaultValue="true"
             android:key="@string/pref_key_use_imperial"
             android:summaryOff="@string/preference_imperial_off"
             android:summaryOn="@string/preference_imperial_on"
             android:title="@string/preference_use_imperial" />
 
-        <android.support.v7.preference.ListPreference
+        <androidx.preference.ListPreference
             android:entries="@array/preference_update_frequency_values"
             android:entryValues="@array/pref_key_update_frequency_values"
             android:key="@string/pref_key_update_frequency"
             android:title="@string/preference_update_frequency" />
 
-    </android.support.v7.preference.PreferenceCategory>
+    </androidx.preference.PreferenceCategory>
 
-    <android.support.v7.preference.PreferenceCategory android:title="@string/preference_cat_appearance">
+    <androidx.preference.PreferenceCategory android:title="@string/preference_cat_appearance">
 
-        <android.support.v14.preference.MultiSelectListPreference
+        <androidx.preference.MultiSelectListPreference
             android:defaultValue="@array/pref_key_weather_details_default"
             android:key="@string/pref_key_details"
             android:title="@string/preference_weather_details"
             android:entries="@array/preference_weather_detail_items"
             android:entryValues="@array/pref_key_weather_details" />
 
-        <android.support.v7.preference.SwitchPreferenceCompat
+        <androidx.preference.SwitchPreferenceCompat
             android:defaultValue="false"
             android:key="@string/pref_key_invert_high_low"
             android:title="@string/preference_high_low_invert" />
 
-    </android.support.v7.preference.PreferenceCategory>
+    </androidx.preference.PreferenceCategory>
 
-    <android.support.v7.preference.PreferenceCategory android:title="@string/preference_cat_permissions">
+    <androidx.preference.PreferenceCategory android:title="@string/preference_cat_permissions">
 
-        <android.support.v7.preference.Preference
+        <androidx.preference.Preference
             android:key="@string/pref_key_permission"
             android:title="@string/preference_permission" />
 
-    </android.support.v7.preference.PreferenceCategory>
+    </androidx.preference.PreferenceCategory>
 
-    <android.support.v7.preference.PreferenceCategory android:title="@string/preference_cat_about">
+    <androidx.preference.PreferenceCategory android:title="@string/preference_cat_about">
 
-        <android.support.v7.preference.Preference
+        <androidx.preference.Preference
             android:key="@string/pref_key_version"
             android:title="@string/preference_version" />
 
-        <android.support.v7.preference.Preference android:title="@string/preference_powered_by" />
+        <androidx.preference.Preference android:title="@string/preference_powered_by" />
 
-    </android.support.v7.preference.PreferenceCategory>
+    </androidx.preference.PreferenceCategory>
 
-</android.support.v7.preference.PreferenceScreen>
+</androidx.preference.PreferenceScreen>

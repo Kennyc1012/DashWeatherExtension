@@ -6,11 +6,11 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.preference.PreferenceManager
-import android.support.v14.preference.MultiSelectListPreference
-import android.support.v4.app.ActivityCompat
-import android.support.v4.content.ContextCompat
-import android.support.v7.preference.ListPreference
-import android.support.v7.preference.PreferenceFragmentCompat
+import androidx.preference.MultiSelectListPreference
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.preference.ListPreference
+import androidx.preference.PreferenceFragmentCompat
 import android.util.Log
 
 
