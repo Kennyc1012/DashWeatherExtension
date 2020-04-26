@@ -51,5 +51,6 @@ dependencies {
     api project(':data')
     api project(':data-owm')
     api project(':data-gps')
+    api project(':data-shared-preferences')
     api project(':api-owm')
 }

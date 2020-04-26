@@ -1,3 +1,4 @@
+include ':data-shared-preferences'
 include ':data-gps'
 include ':data-owm'
 include ':api-owm'

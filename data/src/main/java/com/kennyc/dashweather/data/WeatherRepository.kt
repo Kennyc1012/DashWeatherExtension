@@ -5,6 +5,6 @@ import io.reactivex.Observable
 
 interface WeatherRepository {
 
-    fun getWeather(lat: Double, lon: Double): Observable<Weather>
+    fun getWeather(lat: Double, lon: Double, usesImperial: Boolean): Observable<Weather>
 
 }

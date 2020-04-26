@@ -12,11 +12,17 @@ class OWMWeatherRepository constructor(private val api: OWMMapApi,
                                        private val locationRepository: LocationRepository) : WeatherRepository {
 
 
-    override fun getWeather(lat: Double, lon: Double): Observable<Weather> {
-        return api.getWeatherOneCall(lat, lon)
+    override fun getWeather(lat: Double, lon: Double, usesImperial: Boolean): Observable<Weather> {
+        val units = when (usesImperial) {
+            true -> "imperial"
+            else -> "metric"
+        }
+
+        return api.getWeatherOneCall(lat, lon, units)
                 .zipWith(locationRepository.getLocationName(lat, lon).onErrorReturn { NO_NAME }
                         , BiFunction { response, name ->
-                    toWeather(response, name)
+                    val nameToPass = if (name == NO_NAME) null else name
+                    toWeather(response, nameToPass)
                 })
     }
 
@@ -34,6 +40,7 @@ class OWMWeatherRepository constructor(private val api: OWMMapApi,
                 current.weather[0].summary,
                 name)
     }
+
 }
 
 private const val NO_NAME = "ERR_NO_NAME"

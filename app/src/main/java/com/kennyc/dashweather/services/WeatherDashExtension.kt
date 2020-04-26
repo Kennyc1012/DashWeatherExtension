@@ -1,7 +1,10 @@
 package com.kennyc.dashweather.services
 
 import android.Manifest
-import android.content.*
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.os.Build
@@ -16,6 +19,7 @@ import com.kennyc.dashweather.SettingsActivity
 import com.kennyc.dashweather.SettingsFragment
 import com.kennyc.dashweather.WeatherApp
 import com.kennyc.dashweather.data.contract.WeatherContract
+import com.kennyc.dashweather.data.model.LocalPreferences
 import com.kennyc.dashweather.data.model.Weather
 import com.kennyc.dashweather.presenters.WeatherPresenter
 import javax.inject.Inject
@@ -44,7 +48,7 @@ class WeatherDashExtension : DashClockExtension(), WeatherContract.View {
     lateinit var presenter: WeatherPresenter
 
     @Inject
-    lateinit var sharedPreferences: SharedPreferences
+    lateinit var preferences: LocalPreferences
 
     override fun onInitialize(isReconnect: Boolean) {
         Log.v(TAG, "onInitialize")
@@ -105,8 +109,8 @@ class WeatherDashExtension : DashClockExtension(), WeatherContract.View {
         }
 
         val currentTime = System.currentTimeMillis()
-        val updateFrequency = sharedPreferences.getString(SettingsActivity.KEY_UPDATE_FREQUENCY, SettingsFragment.UPDATE_FREQUENCY_1_HOUR)
-        val lastUpdate = sharedPreferences.getLong(KEY_LAST_UPDATED, 0)
+        val updateFrequency = preferences.getString(SettingsActivity.KEY_UPDATE_FREQUENCY, SettingsFragment.UPDATE_FREQUENCY_1_HOUR)
+        val lastUpdate = preferences.getLong(KEY_LAST_UPDATED, 0)
 
         when (updateFrequency) {
             SettingsFragment.UPDATE_FREQUENCY_NO_LIMIT -> return true
@@ -134,28 +138,27 @@ class WeatherDashExtension : DashClockExtension(), WeatherContract.View {
                 .clickIntent(SettingsActivity.createIntent(applicationContext, true)))
     }
 
-    override fun onWeatherReceived(weather: Weather) {
+    override fun onWeatherReceived(weather: Weather, usesImperial: Boolean) {
         val expandedBody = StringBuilder()
 
         val currentTemp = weather.current.roundToInt()
-        // TODO Support F
-        val currentTempString = getString(R.string.temp_C, currentTemp)
+        val unitStringResource = if (usesImperial) R.string.temp_F else R.string.temp_C
+        val currentTempString = getString(unitStringResource, currentTemp)
         // TODO Icon
         // iconDrawable = current.getIconDrawable()
         val currentCondition = weather.summary
 
-        val userSettings = sharedPreferences.getStringSet(SettingsActivity.KEY_SHOW_WEATHER_DETAILS,
+        val userSettings = preferences.getStringSet(SettingsActivity.KEY_SHOW_WEATHER_DETAILS,
                 setOf(SettingsFragment.WEATHER_DETAILS_HIGH_LOW, SettingsFragment.WEATHER_DETAILS_LOCATION))
 
         //High/Low
         if (userSettings?.contains(SettingsFragment.WEATHER_DETAILS_HIGH_LOW) == true) {
-            val invert = sharedPreferences.getBoolean(SettingsActivity.KEY_INVERT_HIGH_LOW, false)
+            val invert = preferences.getBoolean(SettingsActivity.KEY_INVERT_HIGH_LOW, false)
             val invertResource = if (invert) R.string.high_low_invert else R.string.high_low
             val tempHigh = weather.high.roundToInt()
             val tempLow = weather.low.roundToInt()
-            // TODO Support F
-            val high = getString(R.string.temp_C, tempHigh)
-            val low = getString(R.string.temp_C, tempLow)
+            val high = getString(unitStringResource, tempHigh)
+            val low = getString(unitStringResource, tempLow)
 
             expandedBody.append(getString(invertResource, if (invert) low else high, if (invert) high else low))
         }

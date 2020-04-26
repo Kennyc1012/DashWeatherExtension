@@ -22,6 +22,7 @@ class SettingsActivity : AppCompatActivity() {
         const val KEY_UPDATE_FREQUENCY = "SettingsActivity.UPDATE_FREQUENCY"
         const val KEY_SHOW_WEATHER_DETAILS = "SettingsActivity.SHOW_WEATHER_DETAILS"
         const val KEY_INVERT_HIGH_LOW = "SettingsActivity.INVERT_HIGH_LOW"
+        const val KEY_USE_IMPERIAL = "SettingsActivity.USE_IMPERIAL"
 
         fun createIntent(context: Context, promptPermissions: Boolean): Intent {
             return Intent(context, SettingsActivity::class.java).putExtra(KEY_PROMPT_PERMISSIONS, promptPermissions)
