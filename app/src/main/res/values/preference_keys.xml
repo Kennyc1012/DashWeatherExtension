@@ -2,7 +2,6 @@
 <resources>
     <!-- DO NOT TRANSLATE ANYTHING IN THIS FILE -->
     <string name="pref_key_use_imperial">pref_imperial_units</string>
-    <string name="pref_key_update_frequency">pref_update_frequency</string>
     <string-array name="pref_key_update_frequency_values">
         <item>0</item>
         <item>1</item>
@@ -10,7 +9,6 @@
         <item>3</item>
     </string-array>
     <string name="pref_key_permission">pref_location_permission</string>
-    <string name="pref_key_details">pref_show_weather_details</string>
     <string-array name="pref_key_weather_details">
         <item>0</item>
         <item>1</item>
@@ -21,6 +19,5 @@
         <item>0</item>
         <item>3</item>
     </string-array>
-    <string name="pref_key_invert_high_low">pref_invert_high_low</string>
     <string name="pref_key_version">pref_version</string>
 </resources>

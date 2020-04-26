@@ -30,7 +30,8 @@ class DataModule {
 
     @Provides
     @Singleton
-    fun providesWeatherRepository(component: OWMComponent): WeatherRepository = OWMWeatherRepository(component.api())
+    fun providesWeatherRepository(component: OWMComponent, locationRepository: LocationRepository): WeatherRepository =
+            OWMWeatherRepository(component.api(), locationRepository)
 
     @Provides
     @Singleton

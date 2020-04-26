@@ -1,15 +1,25 @@
 package com.kennyc.dashweather.services
 
+import android.Manifest
 import android.content.*
-import android.preference.PreferenceManager
+import android.content.pm.PackageManager
+import android.net.ConnectivityManager
+import android.os.Build
+import android.os.PowerManager
+import android.text.format.DateUtils
 import android.util.Log
+import androidx.core.content.ContextCompat
 import com.google.android.apps.dashclock.api.DashClockExtension
+import com.google.android.apps.dashclock.api.ExtensionData
+import com.kennyc.dashweather.R
 import com.kennyc.dashweather.SettingsActivity
+import com.kennyc.dashweather.SettingsFragment
 import com.kennyc.dashweather.WeatherApp
 import com.kennyc.dashweather.data.contract.WeatherContract
 import com.kennyc.dashweather.data.model.Weather
 import com.kennyc.dashweather.presenters.WeatherPresenter
 import javax.inject.Inject
+import kotlin.math.roundToInt
 
 
 /**
@@ -33,10 +43,14 @@ class WeatherDashExtension : DashClockExtension(), WeatherContract.View {
     @Inject
     lateinit var presenter: WeatherPresenter
 
+    @Inject
+    lateinit var sharedPreferences: SharedPreferences
+
     override fun onInitialize(isReconnect: Boolean) {
         Log.v(TAG, "onInitialize")
         super.onInitialize(isReconnect)
         (applicationContext as WeatherApp).component.inject(this)
+        presenter.setView(this)
 
         broadcastReceiver?.let {
             try {
@@ -68,131 +82,131 @@ class WeatherDashExtension : DashClockExtension(), WeatherContract.View {
         presenter.requestUpdate(reason)
     }
 
-    override fun canUpdate(sharedPreferences: SharedPreferences): Boolean {
-        TODO("Not yet implemented")
+    override fun canUpdate(): Boolean {
+        val context = applicationContext
+
+        // Check if data saver is on
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            val connMgr = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+            if (connMgr.isActiveNetworkMetered && connMgr.restrictBackgroundStatus == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED) {
+                //  Log.v(DarkSkyDashExtension.TAG, "Data saver enabled and on a metered network, skipping update")
+                return false
+            }
+        }
+
+        // Check if battery saver is enabled
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+            if (powerManager.isPowerSaveMode) {
+                // Log.v(DarkSkyDashExtension.TAG, "Battery saver enabled, skipping update")
+                return false
+            }
+        }
+
+        val currentTime = System.currentTimeMillis()
+        val updateFrequency = sharedPreferences.getString(SettingsActivity.KEY_UPDATE_FREQUENCY, SettingsFragment.UPDATE_FREQUENCY_1_HOUR)
+        val lastUpdate = sharedPreferences.getLong(KEY_LAST_UPDATED, 0)
+
+        when (updateFrequency) {
+            SettingsFragment.UPDATE_FREQUENCY_NO_LIMIT -> return true
+            SettingsFragment.UPDATE_FREQUENCY_1_HOUR -> return currentTime - lastUpdate > DateUtils.HOUR_IN_MILLIS
+            SettingsFragment.UPDATE_FREQUENCY_3_HOURS -> return currentTime - lastUpdate > DateUtils.HOUR_IN_MILLIS * 3
+            SettingsFragment.UPDATE_FREQUENCY_4_HOURS -> return currentTime - lastUpdate > DateUtils.HOUR_IN_MILLIS * 4
+        }
+
+        return false
     }
 
     override fun hasRequiredPermissions(): Boolean {
-        TODO("Not yet implemented")
+        val coarsePermission = ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_COARSE_LOCATION)
+        val finePermission = ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_FINE_LOCATION)
+        return coarsePermission == PackageManager.PERMISSION_GRANTED || finePermission == PackageManager.PERMISSION_GRANTED
     }
 
     override fun onPermissionsRequired() {
-        TODO("Not yet implemented")
+        publishUpdate(ExtensionData()
+                .visible(true)
+                .icon(R.drawable.ic_map_marker_off_black_24dp)
+                .status(getString(R.string.permission_title))
+                .expandedTitle(getString(R.string.permission_title))
+                .expandedBody(getString(R.string.permission_body))
+                .clickIntent(SettingsActivity.createIntent(applicationContext, true)))
     }
 
     override fun onWeatherReceived(weather: Weather) {
-        TODO("Not yet implemented")
+        val expandedBody = StringBuilder()
+
+        val currentTemp = weather.current.roundToInt()
+        // TODO Support F
+        val currentTempString = getString(R.string.temp_C, currentTemp)
+        // TODO Icon
+        // iconDrawable = current.getIconDrawable()
+        val currentCondition = weather.summary
+
+        val userSettings = sharedPreferences.getStringSet(SettingsActivity.KEY_SHOW_WEATHER_DETAILS,
+                setOf(SettingsFragment.WEATHER_DETAILS_HIGH_LOW, SettingsFragment.WEATHER_DETAILS_LOCATION))
+
+        //High/Low
+        if (userSettings?.contains(SettingsFragment.WEATHER_DETAILS_HIGH_LOW) == true) {
+            val invert = sharedPreferences.getBoolean(SettingsActivity.KEY_INVERT_HIGH_LOW, false)
+            val invertResource = if (invert) R.string.high_low_invert else R.string.high_low
+            val tempHigh = weather.high.roundToInt()
+            val tempLow = weather.low.roundToInt()
+            // TODO Support F
+            val high = getString(R.string.temp_C, tempHigh)
+            val low = getString(R.string.temp_C, tempLow)
+
+            expandedBody.append(getString(invertResource, if (invert) low else high, if (invert) high else low))
+        }
+
+
+        // Humidity
+        if (userSettings?.contains(SettingsFragment.WEATHER_DETAILS_HUMIDITY) == true) {
+            if (expandedBody.isNotEmpty()) expandedBody.append("\n")
+            expandedBody.append(getString(R.string.humidity, weather.humidity))
+                    .append("%")
+        }
+
+        // UV Index
+        if (userSettings?.contains(SettingsFragment.WEATHER_DETAILS_UV_INDEX) == true) {
+            if (expandedBody.isNotEmpty()) expandedBody.append("\n")
+            expandedBody.append(getString(R.string.uv_index, weather.uvIndex))
+        }
+
+        // Location
+        weather.locationHumanReadable?.let { location ->
+            if (expandedBody.isNotEmpty()) expandedBody.append("\n")
+            expandedBody.append(location)
+        }
+
+        val body = expandedBody.toString()
+
+        publishUpdate(ExtensionData()
+                .visible(true)
+                .clickIntent(Intent(INTENT_ACTION))
+                /*TODO.icon(iconDrawable)*/
+                .status(currentTempString)
+                .expandedTitle("$currentTempString - $currentCondition")
+                .expandedBody(body))
     }
 
     override fun onWeatherFailure(error: Throwable) {
-        TODO("Not yet implemented")
+        Log.e(TAG, "unable to get location", error)
+        publishUpdate(ExtensionData()
+                .visible(true)
+                .icon(R.drawable.ic_map_marker_off_black_24dp)
+                .status(getString(R.string.error_no_location))
+                .expandedTitle(getString(R.string.error_no_location)))
     }
 
-    /*  override fun displayWeatherResult(weatherResult: WeatherResult?, usesImperial: Boolean) {
-          val current = weatherResult?.currently
-          val daily = weatherResult?.daily
-          val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
-          val uiPreferences = sharedPreferences.getStringSet(getString(R.string.pref_key_details),
-                  setOf(SettingsFragment.WEATHER_DETAILS_HIGH_LOW, SettingsFragment.WEATHER_DETAILS_LOCATION))
-          val currentTemp: String
-          val iconDrawable: Int
-          val currentCondition: String
-
-          if (current != null) {
-              val temp = Math.round(current.temperature)
-              currentTemp = getString(if (usesImperial) R.string.temp_F else R.string.temp_C, temp)
-              iconDrawable = current.getIconDrawable()
-              currentCondition = current.summary
-          } else {
-              currentTemp = "???"
-              iconDrawable = R.drawable.ic_weather_sunny_black_24dp
-              currentCondition = "???"
-          }
-
-          val expandedBody = StringBuilder()
-          val highLow = presenter.getHighLow(applicationContext, uiPreferences, daily, sharedPreferences.getBoolean(getString(R.string.pref_key_invert_high_low), false), usesImperial)
-          highLow?.let { expandedBody.append(it) }
-
-          val humidity = presenter.getHumidity(applicationContext, uiPreferences, current)
-          humidity?.let {
-              if (expandedBody.isNotEmpty()) expandedBody.append("\n")
-              expandedBody.append(humidity)
-          }
-
-          val uvIndex = presenter.getUVIndex(applicationContext, uiPreferences, current)
-          uvIndex?.let {
-              if (expandedBody.isNotEmpty()) expandedBody.append("\n")
-              expandedBody.append(uvIndex)
-          }
-
-          // TODO Better check this
-          val location = presenter.getLocation(applicationContext, uiPreferences, weatherResult!!.latitude, weatherResult!!.longitude)
-          location?.let {
-              if (expandedBody.isNotEmpty()) expandedBody.append("\n")
-              expandedBody.append(location)
-          }
-
-          val body = expandedBody.toString()
-
-          publishUpdate(ExtensionData()
-                  .visible(true)
-                  .clickIntent(Intent(INTENT_ACTION))
-                  .icon(iconDrawable)
-                  .status(currentTemp)
-                  .expandedTitle(currentTemp + " - " + currentCondition)
-                  .expandedBody(body))
-      }
-
-      override fun onLocationNotFound(exception: Exception?) {
-          Log.e(TAG, "unable to get location", exception)
-          val lastLocation = getLastSavedLocation()
-
-          if (lastLocation != null) {
-              Log.v(TAG, "Using previously saved location " + lastLocation)
-              presenter.onLocationReceived(applicationContext, lastLocation[0], lastLocation[1])
-          } else {
-              publishUpdate(ExtensionData()
-                      .visible(true)
-                      .icon(R.drawable.ic_map_marker_off_black_24dp)
-                      .status(getString(R.string.error_no_location))
-                      .expandedTitle(getString(R.string.error_no_location)))
-          }
-
-          startService(Intent(applicationContext, LocationService::class.java))
-      }
-
-      override fun onPermissionMissing() {
-          publishUpdate(ExtensionData()
-                  .visible(true)
-                  .icon(R.drawable.ic_map_marker_off_black_24dp)
-                  .status(getString(R.string.permission_title))
-                  .expandedTitle(getString(R.string.permission_title))
-                  .expandedBody(getString(R.string.permission_body))
-                  .clickIntent(SettingsActivity.createIntent(applicationContext, true)))
-      }*/
-
-    /**
-     * Returns a 2 length array containing the last latitude[0] and longitude[1] saved into the SharedPreferences. Mull will be returned
-     * if no location has been saved
-     */
-    private fun getLastSavedLocation(): Array<Double>? {
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
-        val latitude = sharedPreferences.getString(SettingsActivity.KEY_LAST_KNOWN_LATITUDE, null)
-        val longitude = sharedPreferences.getString(SettingsActivity.KEY_LAST__KNOWN_LONGITUDE, null)
-
-        if (latitude != null && longitude != null) {
-            return arrayOf(latitude.toDouble(), longitude.toDouble())
-        }
-
-        return null
-    }
 
     inner class DashClockReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             if (intent.hasExtra(EXTRA_LATITUDE) && intent.hasExtra(EXTRA_LATITUDE)) {
                 val latitude = intent.getDoubleExtra(EXTRA_LATITUDE, 0.0)
                 val longitude = intent.getDoubleExtra(EXTRA_LONGITUDE, 0.0)
-              //  presenter.onLocationReceived(applicationContext, latitude, longitude)
+                //  presenter.onLocationReceived(applicationContext, latitude, longitude)
             } else {
                 onUpdateData(DashClockExtension.UPDATE_REASON_MANUAL)
             }

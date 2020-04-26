@@ -7,4 +7,5 @@ data class Weather(val latitude: Double,
                    val low: Double,
                    val uvIndex: Int,
                    val humidity: Int,
-                   val summary: String)
+                   val summary: String,
+                   val locationHumanReadable: String?)

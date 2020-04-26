@@ -7,7 +7,7 @@ import com.kennyc.dashweather.data.model.Weather
 class WeatherContract {
 
     interface View {
-        fun canUpdate(sharedPreferences: SharedPreferences): Boolean
+        fun canUpdate(): Boolean
 
         fun hasRequiredPermissions(): Boolean
 

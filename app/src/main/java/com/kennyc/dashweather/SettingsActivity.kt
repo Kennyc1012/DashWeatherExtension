@@ -19,6 +19,9 @@ class SettingsActivity : AppCompatActivity() {
         const val KEY_PROMPT_PERMISSIONS = "SettingsActivity.PROMPT_PERMISSIONS"
         const val KEY_LAST_KNOWN_LATITUDE = "SettingsActivity.LAST_KNOWN_LATITUDE"
         const val KEY_LAST__KNOWN_LONGITUDE = "SettingsActivity.LAST_KNOWN_LONGITUDE"
+        const val KEY_UPDATE_FREQUENCY = "SettingsActivity.UPDATE_FREQUENCY"
+        const val KEY_SHOW_WEATHER_DETAILS = "SettingsActivity.SHOW_WEATHER_DETAILS"
+        const val KEY_INVERT_HIGH_LOW = "SettingsActivity.INVERT_HIGH_LOW"
 
         fun createIntent(context: Context, promptPermissions: Boolean): Intent {
             return Intent(context, SettingsActivity::class.java).putExtra(KEY_PROMPT_PERMISSIONS, promptPermissions)
