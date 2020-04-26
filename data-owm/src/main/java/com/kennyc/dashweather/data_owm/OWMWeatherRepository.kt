@@ -5,11 +5,8 @@ import com.kennyc.dashweather.api_owm.response.OWMResponse
 import com.kennyc.dashweather.data.WeatherRepository
 import com.kennyc.dashweather.data.model.Weather
 import io.reactivex.Observable
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class OWMWeatherRepository @Inject constructor(private val api: OWMMapApi) : WeatherRepository {
+class OWMWeatherRepository constructor(private val api: OWMMapApi) : WeatherRepository {
 
     override fun getWeather(lat: Double, lon: Double): Observable<Weather> {
         return api.getWeatherOneCall(lat, lon)

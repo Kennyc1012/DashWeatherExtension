@@ -1,9 +1,7 @@
 package com.kennyc.dashweather.di
 
 import android.content.Context
-import com.kennyc.dashweather.api_owm.di.OWMModule
-import com.kennyc.dashweather.di.modules.RepositoryModule
-import com.kennyc.dashweather.di.modules.SharedPreferencesModule
+import com.kennyc.dashweather.di.modules.DataModule
 import com.kennyc.dashweather.services.DarkSkyDashExtension
 import dagger.BindsInstance
 import dagger.Component
@@ -11,7 +9,7 @@ import javax.inject.Named
 import javax.inject.Singleton
 
 @Singleton
-@Component(modules = [OWMModule::class, SharedPreferencesModule::class, RepositoryModule::class])
+@Component(modules = [DataModule::class])
 interface AppComponent {
 
     fun inject(service: DarkSkyDashExtension)
