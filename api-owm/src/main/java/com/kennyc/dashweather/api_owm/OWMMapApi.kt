@@ -7,6 +7,6 @@ import retrofit2.http.Query
 
 interface OWMMapApi {
 
-    @GET("/onecall?lat={lat}&lon={lon}")
+    @GET("/onecall?lat={lat}&lon={lon}&units=metric")
     fun getWeatherOneCall(@Query("lat") lat: Double, @Query("lon") lon: Double): Observable<OWMResponse>
 }

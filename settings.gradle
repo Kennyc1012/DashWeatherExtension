@@ -1,3 +1,4 @@
+include ':data-owm'
 include ':api-owm'
 include ':data'
 include ':app'
