@@ -21,7 +21,12 @@ class OWMWeatherRepository constructor(private val api: OWMMapApi,
         return api.getWeatherOneCall(lat, lon, units)
                 .zipWith(locationRepository.getLocationName(lat, lon).onErrorReturn { NO_NAME }
                         , BiFunction { response, name ->
-                    val nameToPass = if (name == NO_NAME) null else name
+
+                    val nameToPass = when (name) {
+                        NO_NAME -> null
+                        else -> name
+                    }
+                    
                     toWeather(response, nameToPass)
                 })
     }
