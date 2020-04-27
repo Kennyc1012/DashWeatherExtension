@@ -28,7 +28,7 @@
 
         <androidx.preference.SwitchPreferenceCompat
             android:defaultValue="false"
-            android:key="KEY_INVERT_HIGH_LOW"
+            android:key="SettingsActivity.KEY_INVERT_HIGH_LOW"
             android:title="@string/preference_high_low_invert" />
 
     </androidx.preference.PreferenceCategory>
