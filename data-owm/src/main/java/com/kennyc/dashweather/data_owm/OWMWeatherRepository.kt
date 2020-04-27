@@ -5,6 +5,7 @@ import com.kennyc.dashweather.api_owm.response.OWMResponse
 import com.kennyc.dashweather.data.LocationRepository
 import com.kennyc.dashweather.data.WeatherRepository
 import com.kennyc.dashweather.data.model.Weather
+import com.kennyc.dashweather.data.model.WeatherIcon
 import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
 
@@ -26,7 +27,7 @@ class OWMWeatherRepository constructor(private val api: OWMMapApi,
                         NO_NAME -> null
                         else -> name
                     }
-                    
+
                     toWeather(response, nameToPass)
                 })
     }
@@ -43,7 +44,24 @@ class OWMWeatherRepository constructor(private val api: OWMMapApi,
                 current.uvIndex.toInt(),
                 current.humidity,
                 current.weather[0].summary,
-                name)
+                name,
+                toWeatherIcon(current.weather[0].icon))
+    }
+
+    private fun toWeatherIcon(icon: String): WeatherIcon = when (icon) {
+        "01d" -> WeatherIcon.CLEAR
+        "01n" -> WeatherIcon.CLEAR_NIGHT
+        "02d", "03d" -> WeatherIcon.PARTLY_CLOUDY
+        "02n", "03n" -> WeatherIcon.PARTLY_CLOUDY_NIGHT
+        "04d", "04n" -> WeatherIcon.CLOUDY
+        "09d" -> WeatherIcon.RAIN_SHOWERS
+        "09n" -> WeatherIcon.RAIN_SHOWERS_NIGHT
+        "10d" -> WeatherIcon.RAIN
+        "10n" -> WeatherIcon.RAIN_NIGHT
+        "11d", "11n" -> WeatherIcon.THUNDER_STORM
+        "13d", "13n" -> WeatherIcon.SNOW
+        "50d", "50n" -> WeatherIcon.FOG
+        else -> WeatherIcon.CLEAR
     }
 
 }

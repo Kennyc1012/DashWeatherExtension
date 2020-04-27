@@ -11,6 +11,7 @@ import android.os.Build
 import android.os.PowerManager
 import android.text.format.DateUtils
 import android.util.Log
+import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import com.google.android.apps.dashclock.api.DashClockExtension
 import com.google.android.apps.dashclock.api.ExtensionData
@@ -21,6 +22,7 @@ import com.kennyc.dashweather.WeatherApp
 import com.kennyc.dashweather.data.contract.WeatherContract
 import com.kennyc.dashweather.data.model.LocalPreferences
 import com.kennyc.dashweather.data.model.Weather
+import com.kennyc.dashweather.data.model.WeatherIcon
 import com.kennyc.dashweather.presenters.WeatherPresenter
 import javax.inject.Inject
 import kotlin.math.roundToInt
@@ -144,8 +146,7 @@ class WeatherDashExtension : DashClockExtension(), WeatherContract.View {
         val currentTemp = weather.current.roundToInt()
         val unitStringResource = if (usesImperial) R.string.temp_F else R.string.temp_C
         val currentTempString = getString(unitStringResource, currentTemp)
-        // TODO Icon
-        // iconDrawable = current.getIconDrawable()
+        val iconDrawable = getIconResource(weather.icon)
         val currentCondition = weather.summary
 
         val userSettings = preferences.getStringSet(SettingsActivity.KEY_SHOW_WEATHER_DETAILS,
@@ -188,7 +189,7 @@ class WeatherDashExtension : DashClockExtension(), WeatherContract.View {
         publishUpdate(ExtensionData()
                 .visible(true)
                 .clickIntent(Intent(INTENT_ACTION))
-                /*TODO.icon(iconDrawable)*/
+                .icon(iconDrawable)
                 .status(currentTempString)
                 .expandedTitle("$currentTempString - $currentCondition")
                 .expandedBody(body))
@@ -201,6 +202,30 @@ class WeatherDashExtension : DashClockExtension(), WeatherContract.View {
                 .icon(R.drawable.ic_map_marker_off_black_24dp)
                 .status(getString(R.string.error_no_location))
                 .expandedTitle(getString(R.string.error_no_location)))
+    }
+
+    @DrawableRes
+    private fun getIconResource(weatherIcon: WeatherIcon): Int = when (weatherIcon) {
+        WeatherIcon.CLEAR -> R.drawable.ic_weather_sunny_black_24dp
+
+        WeatherIcon.CLEAR_NIGHT -> R.drawable.ic_weather_night_black_24dp
+
+        WeatherIcon.PARTLY_CLOUDY -> R.drawable.ic_weather_partlycloudy_black_24dp
+
+        WeatherIcon.PARTLY_CLOUDY_NIGHT -> R.drawable.ic_weather_night_partly_cloudy_black_24dp
+
+        WeatherIcon.CLOUDY -> R.drawable.ic_weather_cloudy_black_24dp
+
+        WeatherIcon.RAIN_SHOWERS, WeatherIcon.RAIN_SHOWERS_NIGHT,
+        WeatherIcon.RAIN, WeatherIcon.RAIN_NIGHT -> R.drawable.ic_weather_rainy_black_24dp
+
+        WeatherIcon.THUNDER_STORM -> R.drawable.ic_weather_lightning_black_24dp
+
+        WeatherIcon.SNOW -> R.drawable.ic_weather_snowy_black_24dp
+
+        WeatherIcon.FOG -> R.drawable.ic_weather_fog_black_24dp
+
+        else -> throw IllegalArgumentException("Unexpected type $weatherIcon")
     }
 
 
