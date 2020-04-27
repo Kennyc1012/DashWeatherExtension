@@ -51,7 +51,8 @@ class WeatherPresenter @Inject constructor(private val weatherRepo: WeatherRepos
                             }
                         }
                         // Once location is obtained, get weather info
-                        .flatMap { weatherRepo.getWeather(it.latitude, it.longitude, usesImperial) }
+                        .flatMap { weatherRepo.getWeather(it.latitude, it.longitude, usesImperial)
+                                .subscribeOn(Schedulers.io()) }
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe({ weather ->
                             // Save last received weather location to local preferences

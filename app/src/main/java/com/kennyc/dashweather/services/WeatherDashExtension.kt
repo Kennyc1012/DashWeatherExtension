@@ -179,9 +179,11 @@ class WeatherDashExtension : DashClockExtension(), WeatherContract.View {
         }
 
         // Location
-        weather.locationHumanReadable?.let { location ->
-            if (expandedBody.isNotEmpty()) expandedBody.append("\n")
-            expandedBody.append(location)
+        if (userSettings?.contains(SettingsFragment.WEATHER_DETAILS_LOCATION) == true) {
+            weather.locationHumanReadable?.let { location ->
+                if (expandedBody.isNotEmpty()) expandedBody.append("\n")
+                expandedBody.append(location)
+            }
         }
 
         val body = expandedBody.toString()
