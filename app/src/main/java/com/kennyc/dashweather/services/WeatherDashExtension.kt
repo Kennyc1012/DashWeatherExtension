@@ -10,7 +10,6 @@ import android.net.ConnectivityManager
 import android.os.Build
 import android.os.PowerManager
 import android.text.format.DateUtils
-import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import com.google.android.apps.dashclock.api.DashClockExtension
@@ -19,6 +18,7 @@ import com.kennyc.dashweather.R
 import com.kennyc.dashweather.SettingsActivity
 import com.kennyc.dashweather.SettingsFragment
 import com.kennyc.dashweather.WeatherApp
+import com.kennyc.dashweather.data.Logger
 import com.kennyc.dashweather.data.contract.WeatherContract
 import com.kennyc.dashweather.data.model.LocalPreferences
 import com.kennyc.dashweather.data.model.Weather
@@ -52,8 +52,11 @@ class WeatherDashExtension : DashClockExtension(), WeatherContract.View {
     @Inject
     lateinit var preferences: LocalPreferences
 
+    @Inject
+    lateinit var logger: Logger
+
     override fun onInitialize(isReconnect: Boolean) {
-        Log.v(TAG, "onInitialize")
+        logger.v(TAG, "onInitialize")
         super.onInitialize(isReconnect)
         (applicationContext as WeatherApp).component.inject(this)
         presenter.setView(this)
@@ -62,7 +65,7 @@ class WeatherDashExtension : DashClockExtension(), WeatherContract.View {
             try {
                 unregisterReceiver(it)
             } catch (ex: Exception) {
-                Log.e(TAG, "Unable to unregister receiver", ex)
+                logger.e(TAG, "Unable to unregister receiver", ex)
             }
         }
 
@@ -71,20 +74,20 @@ class WeatherDashExtension : DashClockExtension(), WeatherContract.View {
     }
 
     override fun onDestroy() {
-        Log.v(TAG, "onDestroy")
+        logger.v(TAG, "onDestroy")
         presenter.onDestroy()
         broadcastReceiver?.let {
             try {
                 unregisterReceiver(it)
             } catch (ex: Exception) {
-                Log.e(TAG, "Unable to unregister receiver:", ex)
+                logger.e(TAG, "Unable to unregister receiver:", ex)
             }
         }
         super.onDestroy()
     }
 
     override fun onUpdateData(reason: Int) {
-        Log.v(TAG, "onUpdateData - reason: $reason")
+        logger.v(TAG, "onUpdateData - reason: $reason")
         presenter.requestUpdate(reason)
     }
 
@@ -198,7 +201,7 @@ class WeatherDashExtension : DashClockExtension(), WeatherContract.View {
     }
 
     override fun onWeatherFailure(error: Throwable) {
-        Log.e(TAG, "unable to get location", error)
+        logger.e(TAG, "unable to get location", error)
         publishUpdate(ExtensionData()
                 .visible(true)
                 .icon(R.drawable.ic_map_marker_off_black_24dp)
