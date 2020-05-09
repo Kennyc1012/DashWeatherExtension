@@ -5,13 +5,14 @@ import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.preference.PreferenceManager
-import androidx.preference.MultiSelectListPreference
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.preference.ListPreference
+import androidx.preference.MultiSelectListPreference
 import androidx.preference.PreferenceFragmentCompat
-import android.util.Log
+import com.kennyc.dashweather.data.Logger
+import com.kennyc.dashweather.data.model.LocalPreferences
+import javax.inject.Inject
 
 
 /**
@@ -30,12 +31,17 @@ class SettingsFragment : PreferenceFragmentCompat() {
         const val WEATHER_DETAILS_LOCATION = "3"
     }
 
+    @Inject
+    lateinit var preferences: LocalPreferences
+
+    @Inject
+    lateinit var logger: Logger
+
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.settings)
-       /* val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(activity)
-        val frequencyKey = getString(R.string.pref_key_update_frequency)
+        val frequencyKey = SettingsActivity.KEY_UPDATE_FREQUENCY
         val listPreference: ListPreference = findPreference(frequencyKey) as ListPreference
-        listPreference.summary = listPreference.entries[sharedPreferences.getString(frequencyKey, UPDATE_FREQUENCY_1_HOUR).toInt()]
+        listPreference.summary = listPreference.entries[preferences.getString(frequencyKey, UPDATE_FREQUENCY_1_HOUR)!!.toInt()]
 
         listPreference.setOnPreferenceChangeListener { preference, newValue ->
             val listPreference: ListPreference = preference as ListPreference
@@ -43,12 +49,12 @@ class SettingsFragment : PreferenceFragmentCompat() {
             true
         }
 
-        val detailsKey = getString(R.string.pref_key_details)
+        val detailsKey = SettingsActivity.KEY_SHOW_WEATHER_DETAILS
         val weatherDetails: MultiSelectListPreference = findPreference(detailsKey) as MultiSelectListPreference
-        var savedUiPreferences = sharedPreferences.getStringSet(getString(R.string.pref_key_details),
+        var savedUiPreferences = preferences.getStringSet(detailsKey,
                 setOf(SettingsFragment.WEATHER_DETAILS_HIGH_LOW, SettingsFragment.WEATHER_DETAILS_LOCATION))
 
-        setWeatherDetails(weatherDetails, savedUiPreferences)
+        setWeatherDetails(weatherDetails, savedUiPreferences!!)
         weatherDetails.setOnPreferenceChangeListener { preference, newValue ->
             setWeatherDetails(preference as MultiSelectListPreference, newValue as Set<String>)
             true
@@ -60,8 +66,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
             val pInfo = act.packageManager.getPackageInfo(act.packageName, 0)
             version.summary = pInfo.versionName
         } catch (e: PackageManager.NameNotFoundException) {
-            Log.e("Settings", "Unable to get version number")
-        }*/
+            logger.e("Settings", "Unable to get version number")
+        }
 
         checkPermissions()
     }

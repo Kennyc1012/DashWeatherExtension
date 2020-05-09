@@ -36,8 +36,6 @@ class WeatherDashExtension : DashClockExtension(), WeatherContract.View {
         const val KEY_LAST_UPDATED = "com.kennyc.dashweather.LAST_UPDATE"
         const val TAG = "DarkSkyDashExtension"
         const val INTENT_ACTION = "com.kennyc.dashweather.REFRESH"
-        const val EXTRA_LATITUDE = "com.kennyc.dashweather.EXTRA_LATITUDE"
-        const val EXTRA_LONGITUDE = "com.kennyc.dashweather.EXTRA_LONGITUDE"
 
         fun sendBroadcast(context: Context) {
             context.sendBroadcast(Intent(INTENT_ACTION))
@@ -236,13 +234,7 @@ class WeatherDashExtension : DashClockExtension(), WeatherContract.View {
 
     inner class DashClockReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            if (intent.hasExtra(EXTRA_LATITUDE) && intent.hasExtra(EXTRA_LATITUDE)) {
-                val latitude = intent.getDoubleExtra(EXTRA_LATITUDE, 0.0)
-                val longitude = intent.getDoubleExtra(EXTRA_LONGITUDE, 0.0)
-                //  presenter.onLocationReceived(applicationContext, latitude, longitude)
-            } else {
-                onUpdateData(DashClockExtension.UPDATE_REASON_MANUAL)
-            }
+            onUpdateData(DashClockExtension.UPDATE_REASON_MANUAL)
         }
     }
 }
