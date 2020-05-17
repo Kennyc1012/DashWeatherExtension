@@ -26,7 +26,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
         const val UPDATE_FREQUENCY_4_HOURS = "3"
 
         const val WEATHER_DETAILS_HIGH_LOW = "0"
-        const val WEATHER_DETAILS_UV_INDEX = "1"
         const val WEATHER_DETAILS_HUMIDITY = "2"
         const val WEATHER_DETAILS_LOCATION = "3"
     }

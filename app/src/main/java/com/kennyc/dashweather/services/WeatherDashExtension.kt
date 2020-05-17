@@ -173,12 +173,6 @@ class WeatherDashExtension : DashClockExtension(), WeatherContract.View {
                     .append("%")
         }
 
-        // UV Index
-        if (userSettings?.contains(SettingsFragment.WEATHER_DETAILS_UV_INDEX) == true) {
-            if (expandedBody.isNotEmpty()) expandedBody.append("\n")
-            expandedBody.append(getString(R.string.uv_index, weather.uvIndex))
-        }
-
         // Location
         if (userSettings?.contains(SettingsFragment.WEATHER_DETAILS_LOCATION) == true) {
             weather.locationHumanReadable?.let { location ->

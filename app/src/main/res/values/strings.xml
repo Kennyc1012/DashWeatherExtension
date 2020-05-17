@@ -8,7 +8,6 @@
     <string name="temp_F">%d&#176;F</string>
     <string name="temp_C">%d&#176;C</string>
     <string name="humidity">Humidity: %d</string>
-    <string name="uv_index">UV Index: %d</string>
     <string name="permission_title">Permission Needed</string>
     <string name="permission_body">Location permission is required</string>
     <string name="error_no_location">Location not found</string>
@@ -42,12 +41,4 @@
     <string name="preference_cat_about">About</string>
     <string name="preference_powered_by">Powered by Dark Sky</string>
     <string name="preference_version">Version</string>
-    <!-- Strings used for fragments for navigation -->
-    <string name="first_fragment_label">First Fragment</string>
-    <string name="second_fragment_label">Second Fragment</string>
-    <string name="next">Next</string>
-    <string name="previous">Previous</string>
-
-    <string name="hello_first_fragment">Hello first fragment</string>
-    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
 </resources>
