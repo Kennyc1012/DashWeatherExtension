@@ -3,22 +3,24 @@ package com.kennyc.dashweather.presenters
 import com.google.android.apps.dashclock.api.DashClockExtension
 import com.kennyc.dashweather.SettingsActivity
 import com.kennyc.dashweather.data.LocationRepository
+import com.kennyc.dashweather.data.Logger
 import com.kennyc.dashweather.data.WeatherRepository
 import com.kennyc.dashweather.data.contract.WeatherContract
 import com.kennyc.dashweather.data.model.LocalPreferences
 import com.kennyc.dashweather.data.model.WeatherLocation
-import com.kennyc.dashweather.data.model.exception.LocationNotFoundException
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
 import javax.inject.Inject
+
+private const val TAG = "WeatherPresenter"
 
 class WeatherPresenter @Inject constructor(private val weatherRepo: WeatherRepository,
                                            private val locationRepository: LocationRepository,
-                                           private val preferences: LocalPreferences) : WeatherContract.Presenter {
+                                           private val preferences: LocalPreferences,
+                                           private val logger: Logger) : WeatherContract.Presenter {
 
-    private val disposables = CompositeDisposable()
+    private val scope = MainScope()
 
     private var view: WeatherContract.View? = null
 
@@ -27,44 +29,30 @@ class WeatherPresenter @Inject constructor(private val weatherRepo: WeatherRepos
             val usesImperial = preferences.getBoolean(SettingsActivity.KEY_USE_IMPERIAL, true)
 
             if (requireView().hasRequiredPermissions()) {
-                // Get last known location
-                disposables.add(locationRepository.getLastKnownLocation()
-                        .subscribeOn(Schedulers.io())
-                        .doOnError { error ->
-                            when (error) {
-                                is LocationNotFoundException -> {
-                                    // If we do not have a last known location, request updates
-                                    locationRepository.requestLocationUpdates()
-                                            .doOnError {
-                                                // If no location was found, look for a last known one that was saved to local preferences
-                                                val lastLat = preferences.getString(SettingsActivity.KEY_LAST_KNOWN_LATITUDE, null)
-                                                val lastLon = preferences.getString(SettingsActivity.KEY_LAST_KNOWN_LATITUDE, null)
-
-                                                if (!lastLat.isNullOrEmpty() && !lastLon.isNullOrEmpty()) {
-                                                    Observable.just(WeatherLocation(lastLat.toDouble(), lastLon.toDouble()))
-                                                } else {
-                                                    Observable.error(it)
-                                                }
-                                            }
-                                }
-                                else -> Observable.error(error)
-                            }
-                        }
-                        // Once location is obtained, get weather info
-                        .flatMap { weatherRepo.getWeather(it.latitude, it.longitude, usesImperial)
-                                .subscribeOn(Schedulers.io()) }
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe({ weather ->
-                            // Save last received weather location to local preferences
-                            preferences.saveString(SettingsActivity.KEY_LAST_KNOWN_LATITUDE, weather.latitude.toString())
-                            preferences.saveString(SettingsActivity.KEY_LAST__KNOWN_LONGITUDE, weather.longitude.toString())
-                            requireView().onWeatherReceived(weather, usesImperial)
-                        }, { error ->
-                            requireView().onWeatherFailure(error)
-                        }))
+                scope.launch(Dispatchers.IO) {
+                    val location = locationRepository.getLastKnownLocation()
+                    if (location != null) {
+                        receivedLocation(location, usesImperial)
+                    } else {
+                        locationRepository.requestLocationUpdates()
+                                .catch { logger.e(TAG, "Error fetching location", it) }
+                                .collect { receivedLocation(it, usesImperial) }
+                    }
+                }
             } else {
                 requireView().onPermissionsRequired()
             }
+        }
+    }
+
+    private suspend fun receivedLocation(location: WeatherLocation, usesImperial: Boolean) {
+        try {
+            val weather = weatherRepo.getWeather(location.latitude, location.longitude, usesImperial)
+            preferences.saveString(SettingsActivity.KEY_LAST_KNOWN_LATITUDE, weather.latitude.toString())
+            preferences.saveString(SettingsActivity.KEY_LAST__KNOWN_LONGITUDE, weather.longitude.toString())
+            withContext(Dispatchers.Main) { requireView().onWeatherReceived(weather, usesImperial) }
+        } catch (e: Exception) {
+            withContext(Dispatchers.Main) { requireView().onWeatherFailure(e) }
         }
     }
 
@@ -75,7 +63,7 @@ class WeatherPresenter @Inject constructor(private val weatherRepo: WeatherRepos
     override fun requireView(): WeatherContract.View = requireNotNull(view)
 
     override fun onDestroy() {
-        disposables.clear()
+        scope.cancel("onDestroy", null)
         view = null
     }
 }

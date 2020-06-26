@@ -1,14 +1,13 @@
 package com.kennyc.dashweather.data
 
 import com.kennyc.dashweather.data.model.WeatherLocation
-import io.reactivex.Flowable
-import io.reactivex.Observable
+import kotlinx.coroutines.flow.Flow
 
 interface LocationRepository {
 
-    fun getLastKnownLocation(): Observable<WeatherLocation>
+    suspend fun getLastKnownLocation(): WeatherLocation?
 
-    fun requestLocationUpdates(): Observable<WeatherLocation>
+    suspend fun requestLocationUpdates(): Flow<WeatherLocation>
 
-    fun getLocationName(lat: Double, lon: Double): Observable<String>
+    suspend fun getLocationName(lat: Double, lon: Double): String?
 }

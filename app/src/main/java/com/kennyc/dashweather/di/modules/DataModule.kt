@@ -6,6 +6,7 @@ import androidx.preference.PreferenceManager
 import com.kennyc.dashweather.BuildConfig
 import com.kennyc.dashweather.api_owm.di.OWMComponent
 import com.kennyc.dashweather.data.LocationRepository
+import com.kennyc.dashweather.data.Logger
 import com.kennyc.dashweather.data.WeatherRepository
 import com.kennyc.dashweather.data.contract.WeatherContract
 import com.kennyc.dashweather.data.model.LocalPreferences
@@ -46,6 +47,7 @@ class DataModule {
     @Provides
     fun providesPresenter(weatherRepository: WeatherRepository,
                           locationRepository: LocationRepository,
-                          preferences: LocalPreferences): WeatherContract.Presenter =
-            WeatherPresenter(weatherRepository, locationRepository, preferences)
+                          preferences: LocalPreferences,
+                          logger: Logger): WeatherContract.Presenter =
+            WeatherPresenter(weatherRepository, locationRepository, preferences, logger)
 }

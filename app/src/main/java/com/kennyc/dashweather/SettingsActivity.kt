@@ -55,7 +55,7 @@ class SettingsActivity : AppCompatActivity() {
             PERMISSION_REQUEST_CODE -> {
                 WeatherDashExtension.sendBroadcast(applicationContext)
                 val hasPermission = grantResults.contains(PackageManager.PERMISSION_GRANTED)
-                settingsFragment?.onPermissionUpdated(hasPermission)
+                settingsFragment.onPermissionUpdated(hasPermission)
             }
         }
     }

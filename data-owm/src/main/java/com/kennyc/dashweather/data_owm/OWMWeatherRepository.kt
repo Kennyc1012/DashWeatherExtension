@@ -6,30 +6,20 @@ import com.kennyc.dashweather.data.LocationRepository
 import com.kennyc.dashweather.data.WeatherRepository
 import com.kennyc.dashweather.data.model.Weather
 import com.kennyc.dashweather.data.model.WeatherIcon
-import io.reactivex.Observable
-import io.reactivex.functions.BiFunction
 
 class OWMWeatherRepository constructor(private val api: OWMMapApi,
                                        private val locationRepository: LocationRepository) : WeatherRepository {
 
 
-    override fun getWeather(lat: Double, lon: Double, usesImperial: Boolean): Observable<Weather> {
+    override suspend fun getWeather(lat: Double, lon: Double, usesImperial: Boolean): Weather {
         val units = when (usesImperial) {
             true -> "imperial"
             else -> "metric"
         }
 
-        return api.getWeatherOneCall(lat, lon, units)
-                .zipWith(locationRepository.getLocationName(lat, lon).onErrorReturn { NO_NAME }
-                        , BiFunction { response, name ->
-
-                    val nameToPass = when (name) {
-                        NO_NAME -> null
-                        else -> name
-                    }
-
-                    toWeather(response, nameToPass)
-                })
+        val response = api.getWeatherOneCall(lat, lon, units)
+        val locationName = locationRepository.getLocationName(lat, lon)
+        return toWeather(response, locationName)
     }
 
     private fun toWeather(response: OWMResponse, name: String?): Weather {
