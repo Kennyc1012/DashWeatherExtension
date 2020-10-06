@@ -37,6 +37,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
     lateinit var logger: Logger
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        (context!!.applicationContext as WeatherApp).component.inject(this)
         addPreferencesFromResource(R.xml.settings)
         val frequencyKey = SettingsActivity.KEY_UPDATE_FREQUENCY
         val listPreference: ListPreference = findPreference(frequencyKey) as ListPreference
