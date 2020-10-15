@@ -34,9 +34,12 @@ class WeatherPresenter @Inject constructor(private val weatherRepo: WeatherRepos
                     if (location != null) {
                         receivedLocation(location, usesImperial)
                     } else {
-                        locationRepository.requestLocationUpdates()
-                                .catch { logger.e(TAG, "Error fetching location", it) }
-                                .collect { receivedLocation(it, usesImperial) }
+                        scope.launch(Dispatchers.Main) {
+                            locationRepository.requestLocationUpdates()
+                                    .catch { logger.e(TAG, "Error fetching location", it) }
+                                    .collect { receivedLocation(it, usesImperial) }
+                        }
+
                     }
                 }
             } else {

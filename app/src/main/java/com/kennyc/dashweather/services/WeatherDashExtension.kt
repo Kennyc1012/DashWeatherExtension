@@ -54,9 +54,9 @@ class WeatherDashExtension : DashClockExtension(), WeatherContract.View {
     lateinit var logger: Logger
 
     override fun onInitialize(isReconnect: Boolean) {
-        logger.v(TAG, "onInitialize")
         super.onInitialize(isReconnect)
         (applicationContext as WeatherApp).component.inject(this)
+        logger.v(TAG, "onInitialize")
         presenter.setView(this)
 
         broadcastReceiver?.let {
