@@ -55,7 +55,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         preferences.getStringSet(detailsKey,
                 setOf(SettingsFragment.WEATHER_DETAILS_HIGH_LOW, SettingsFragment.WEATHER_DETAILS_LOCATION))?.let {
-           Log.e("HELLO",it.toString())
             setWeatherDetails(weatherDetails, it)
         }
 
@@ -100,7 +99,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val size = uiPreferences.size
 
         uiPreferences.withIndex().forEach {
-            Log.e("ASDFASDF", it.toString())
             summary.append(weatherDetails.entries[weatherDetails.findIndexOfValue(it.value)])
             if (it.index < size - 1) summary.append("\n")
         }
