@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.preference.ListPreference
@@ -26,8 +27,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
         const val UPDATE_FREQUENCY_4_HOURS = "3"
 
         const val WEATHER_DETAILS_HIGH_LOW = "0"
-        const val WEATHER_DETAILS_HUMIDITY = "2"
-        const val WEATHER_DETAILS_LOCATION = "3"
+        const val WEATHER_DETAILS_HUMIDITY = "1"
+        const val WEATHER_DETAILS_LOCATION = "2"
     }
 
     @Inject
@@ -51,10 +52,13 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         val detailsKey = SettingsActivity.KEY_SHOW_WEATHER_DETAILS
         val weatherDetails: MultiSelectListPreference = findPreference(detailsKey) as MultiSelectListPreference
-        var savedUiPreferences = preferences.getStringSet(detailsKey,
-                setOf(SettingsFragment.WEATHER_DETAILS_HIGH_LOW, SettingsFragment.WEATHER_DETAILS_LOCATION))
 
-        setWeatherDetails(weatherDetails, savedUiPreferences!!)
+        preferences.getStringSet(detailsKey,
+                setOf(SettingsFragment.WEATHER_DETAILS_HIGH_LOW, SettingsFragment.WEATHER_DETAILS_LOCATION))?.let {
+           Log.e("HELLO",it.toString())
+            setWeatherDetails(weatherDetails, it)
+        }
+
         weatherDetails.setOnPreferenceChangeListener { preference, newValue ->
             setWeatherDetails(preference as MultiSelectListPreference, newValue as Set<String>)
             true
@@ -96,12 +100,12 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val size = uiPreferences.size
 
         uiPreferences.withIndex().forEach {
+            Log.e("ASDFASDF", it.toString())
             summary.append(weatherDetails.entries[weatherDetails.findIndexOfValue(it.value)])
             if (it.index < size - 1) summary.append("\n")
         }
 
         weatherDetails.summary = summary.toString()
-
     }
 
     fun onPermissionUpdated(available: Boolean) {

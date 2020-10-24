@@ -33,7 +33,6 @@
     <string name="preference_weather_details">Weather Details</string>
     <string-array name="preference_weather_detail_items">
         <item>High/Low temperature</item>
-        <item>UV index</item>
         <item>Humidity percentage</item>
         <item>Location</item>
     </string-array>
