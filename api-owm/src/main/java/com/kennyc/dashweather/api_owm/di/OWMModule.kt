@@ -5,6 +5,7 @@ import com.kennyc.dashweather.api_owm.interceptor.AppIdInterceptor
 import dagger.Module
 import dagger.Provides
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
@@ -16,10 +17,12 @@ class OWMModule {
 
     @Provides
     @Singleton
-    fun providesOkHttp(@Named("appId") appId: String): OkHttpClient =
+    fun providesOkHttp(@Named("appId") appId: String,
+                       loggingInterceptor: HttpLoggingInterceptor): OkHttpClient =
             OkHttpClient.Builder()
                     .connectTimeout(10, TimeUnit.SECONDS)
                     .addInterceptor(AppIdInterceptor(appId))
+                    .addInterceptor(loggingInterceptor)
                     .build()
 
     @Provides
@@ -34,4 +37,13 @@ class OWMModule {
                     create(OWMMapApi::class.java)
                 }
     }
+
+    @Provides
+    fun providesLoggingInterceptor(@Named("isDebug") isDebug: Boolean) =
+            HttpLoggingInterceptor().apply {
+                level = when (isDebug) {
+                    true -> HttpLoggingInterceptor.Level.BODY
+                    else -> HttpLoggingInterceptor.Level.NONE
+                }
+            }
 }

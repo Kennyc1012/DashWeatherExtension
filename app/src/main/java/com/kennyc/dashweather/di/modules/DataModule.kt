@@ -29,6 +29,7 @@ class DataModule {
     @Singleton
     fun providesOWMComponent(): OWMComponent = OWMComponent.builder()
             .appId(BuildConfig.API_KEY)
+            .isDebug(BuildConfig.DEBUG)
             .build()
 
     @Provides

@@ -17,6 +17,9 @@ interface OWMComponent {
         @BindsInstance
         fun appId(@Named("appId") appId: String): Builder
 
+        @BindsInstance
+        fun isDebug(@Named("isDebug") isDebug: Boolean): Builder
+
         fun build(): OWMComponent
     }
 
