@@ -10,7 +10,6 @@ import com.kennyc.dashweather.data.model.WeatherIcon
 class OWMWeatherRepository constructor(private val api: OWMMapApi,
                                        private val locationRepository: LocationRepository) : WeatherRepository {
 
-
     override suspend fun getWeather(lat: Double, lon: Double, usesImperial: Boolean): Weather {
         val units = when (usesImperial) {
             true -> "imperial"
@@ -53,6 +52,7 @@ class OWMWeatherRepository constructor(private val api: OWMMapApi,
         else -> WeatherIcon.CLEAR
     }
 
+    override fun getWeatherProviderName(): String = "OpenWeather"
 }
 
 private const val NO_NAME = "ERR_NO_NAME"

@@ -5,13 +5,13 @@ import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.preference.ListPreference
 import androidx.preference.MultiSelectListPreference
 import androidx.preference.PreferenceFragmentCompat
 import com.kennyc.dashweather.data.Logger
+import com.kennyc.dashweather.data.WeatherRepository
 import com.kennyc.dashweather.data.model.LocalPreferences
 import javax.inject.Inject
 
@@ -36,6 +36,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     @Inject
     lateinit var logger: Logger
+
+    @Inject
+    lateinit var repo: WeatherRepository
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         (context!!.applicationContext as WeatherApp).component.inject(this)
@@ -73,6 +76,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
 
         checkPermissions()
+
+        findPreference(getString(R.string.pref_key_powered_by)).summary = repo.getWeatherProviderName()
     }
 
     private fun checkPermissions() {
