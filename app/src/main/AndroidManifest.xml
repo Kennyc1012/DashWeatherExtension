@@ -19,7 +19,8 @@
             android:name=".services.WeatherDashExtension"
             android:icon="@drawable/ic_weather_sunny_black_24dp"
             android:label="@string/app_name"
-            android:permission="com.google.android.apps.dashclock.permission.READ_EXTENSION_DATA">
+            android:permission="com.google.android.apps.dashclock.permission.READ_EXTENSION_DATA"
+            android:exported="true">
             <intent-filter>
                 <action android:name="com.google.android.apps.dashclock.Extension" />
             </intent-filter>

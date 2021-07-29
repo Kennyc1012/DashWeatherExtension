@@ -4,6 +4,7 @@ buildscript {
     ext.kotlin_version = '1.5.20'
     ext.support_version='27.0.2'
     ext.dagger = '2.35.1'
+    ext.target_sdk = 31
 
     repositories {
         google()
