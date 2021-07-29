@@ -34,7 +34,7 @@ import kotlin.math.roundToInt
 class WeatherDashExtension : DashClockExtension(), WeatherContract.View {
     companion object {
         const val KEY_LAST_UPDATED = "com.kennyc.dashweather.LAST_UPDATE"
-        const val TAG = "DarkSkyDashExtension"
+        const val TAG = "WeatherDashExtension"
         const val INTENT_ACTION = "com.kennyc.dashweather.REFRESH"
 
         fun sendBroadcast(context: Context) {
