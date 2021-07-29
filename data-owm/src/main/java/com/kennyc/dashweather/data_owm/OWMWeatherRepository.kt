@@ -6,34 +6,43 @@ import com.kennyc.dashweather.data.LocationRepository
 import com.kennyc.dashweather.data.WeatherRepository
 import com.kennyc.dashweather.data.model.Weather
 import com.kennyc.dashweather.data.model.WeatherIcon
+import io.reactivex.rxjava3.core.Single
 
-class OWMWeatherRepository constructor(private val api: OWMMapApi,
-                                       private val locationRepository: LocationRepository) : WeatherRepository {
+class OWMWeatherRepository constructor(
+    private val api: OWMMapApi,
+    private val locationRepository: LocationRepository
+) : WeatherRepository {
 
-    override suspend fun getWeather(lat: Double, lon: Double, usesImperial: Boolean): Weather {
+    override fun getWeather(lat: Double, lon: Double, usesImperial: Boolean): Single<Weather> {
         val units = when (usesImperial) {
             true -> "imperial"
             else -> "metric"
         }
 
-        val response = api.getWeatherOneCall(lat, lon, units)
-        val locationName = locationRepository.getLocationName(lat, lon)
-        return toWeather(response, locationName)
+        return locationRepository.getLocationName(lat, lon)
+            .flatMapSingle { name ->
+                api.getWeatherOneCall(lat, lon, units)
+                    .map { toWeather(it, name) }
+            }
+            .switchIfEmpty(api.getWeatherOneCall(lat, lon, units)
+                .map { toWeather(it, null) })
     }
 
     private fun toWeather(response: OWMResponse, name: String?): Weather {
         val daily = response.daily[0].temp
         val current = response.current
 
-        return Weather(response.lat,
-                response.lon,
-                current.temp,
-                daily.max,
-                daily.min,
-                current.humidity,
-                current.weather[0].summary,
-                name,
-                toWeatherIcon(current.weather[0].icon))
+        return Weather(
+            response.lat,
+            response.lon,
+            current.temp,
+            daily.max,
+            daily.min,
+            current.humidity,
+            current.weather[0].summary,
+            name,
+            toWeatherIcon(current.weather[0].icon)
+        )
     }
 
     private fun toWeatherIcon(icon: String): WeatherIcon = when (icon) {

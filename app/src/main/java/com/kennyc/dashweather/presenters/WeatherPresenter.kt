@@ -3,24 +3,23 @@ package com.kennyc.dashweather.presenters
 import com.google.android.apps.dashclock.api.DashClockExtension
 import com.kennyc.dashweather.SettingsActivity
 import com.kennyc.dashweather.data.LocationRepository
-import com.kennyc.dashweather.data.Logger
 import com.kennyc.dashweather.data.WeatherRepository
 import com.kennyc.dashweather.data.contract.WeatherContract
 import com.kennyc.dashweather.data.model.LocalPreferences
-import com.kennyc.dashweather.data.model.WeatherLocation
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.schedulers.Schedulers
 import javax.inject.Inject
 
 private const val TAG = "WeatherPresenter"
 
-class WeatherPresenter @Inject constructor(private val weatherRepo: WeatherRepository,
-                                           private val locationRepository: LocationRepository,
-                                           private val preferences: LocalPreferences,
-                                           private val logger: Logger) : WeatherContract.Presenter {
+class WeatherPresenter @Inject constructor(
+    private val weatherRepo: WeatherRepository,
+    private val locationRepository: LocationRepository,
+    private val preferences: LocalPreferences,
+) : WeatherContract.Presenter {
 
-    private val scope = MainScope()
+    private val disposables = CompositeDisposable()
 
     private var view: WeatherContract.View? = null
 
@@ -29,33 +28,27 @@ class WeatherPresenter @Inject constructor(private val weatherRepo: WeatherRepos
             val usesImperial = preferences.getBoolean(SettingsActivity.KEY_USE_IMPERIAL, true)
 
             if (requireView().hasRequiredPermissions()) {
-                scope.launch(Dispatchers.IO) {
-                    val location = locationRepository.getLastKnownLocation()
-                    if (location != null) {
-                        receivedLocation(location, usesImperial)
-                    } else {
-                        scope.launch(Dispatchers.Main) {
-                            locationRepository.requestLocationUpdates()
-                                    .catch { logger.e(TAG, "Error fetching location", it) }
-                                    .collect { receivedLocation(it, usesImperial) }
-                        }
+                val disposable = locationRepository.getLastKnownLocation()
+                    .switchIfEmpty(locationRepository.requestLocationUpdates().singleOrError())
+                    .flatMap {
+                        preferences.saveString(
+                            SettingsActivity.KEY_LAST_KNOWN_LATITUDE,
+                            it.latitude.toString()
+                        )
 
+                        preferences.saveString(
+                            SettingsActivity.KEY_LAST__KNOWN_LONGITUDE,
+                            it.longitude.toString()
+                        )
+
+                        weatherRepo.getWeather(it.latitude, it.longitude, usesImperial)
                     }
-                }
-            } else {
-                requireView().onPermissionsRequired()
-            }
-        }
-    }
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe { result -> requireView().onWeatherReceived(result, usesImperial) }
 
-    private suspend fun receivedLocation(location: WeatherLocation, usesImperial: Boolean) {
-        try {
-            val weather = weatherRepo.getWeather(location.latitude, location.longitude, usesImperial)
-            preferences.saveString(SettingsActivity.KEY_LAST_KNOWN_LATITUDE, weather.latitude.toString())
-            preferences.saveString(SettingsActivity.KEY_LAST__KNOWN_LONGITUDE, weather.longitude.toString())
-            withContext(Dispatchers.Main) { requireView().onWeatherReceived(weather, usesImperial) }
-        } catch (e: Exception) {
-            withContext(Dispatchers.Main) { requireView().onWeatherFailure(e) }
+                disposables.add(disposable)
+            }
         }
     }
 
@@ -66,7 +59,7 @@ class WeatherPresenter @Inject constructor(private val weatherRepo: WeatherRepos
     override fun requireView(): WeatherContract.View = requireNotNull(view)
 
     override fun onDestroy() {
-        scope.cancel("onDestroy", null)
+        disposables.clear()
         view = null
     }
 }

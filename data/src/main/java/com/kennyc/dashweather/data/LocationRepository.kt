@@ -1,13 +1,14 @@
 package com.kennyc.dashweather.data
 
 import com.kennyc.dashweather.data.model.WeatherLocation
-import kotlinx.coroutines.flow.Flow
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Observable
 
 interface LocationRepository {
 
-    suspend fun getLastKnownLocation(): WeatherLocation?
+    fun getLastKnownLocation(): Maybe<WeatherLocation>
 
-    suspend fun requestLocationUpdates(): Flow<WeatherLocation>
+    fun requestLocationUpdates(): Observable<WeatherLocation>
 
-    suspend fun getLocationName(lat: Double, lon: Double): String?
+    fun getLocationName(lat: Double, lon: Double): Maybe<String>
 }
