@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Geocoder
 import android.location.Location
+import android.os.Looper
 import android.text.format.DateUtils
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -56,7 +57,7 @@ class GPSLocationRepository(context: Context) : LocationRepository {
                     null -> throw NullPointerException("No location received from updates")
                     else -> {
                         val location = result.locations[0]
-                        offer(WeatherLocation(location.latitude, location.longitude))
+                        trySend(WeatherLocation(location.latitude, location.longitude))
                     }
                 }
 
@@ -64,7 +65,7 @@ class GPSLocationRepository(context: Context) : LocationRepository {
             }
         }
 
-        client.requestLocationUpdates(request, cb, null).await()
+        client.requestLocationUpdates(request, cb, Looper.getMainLooper()).await()
         awaitClose { client.removeLocationUpdates(cb) }
     }
 }

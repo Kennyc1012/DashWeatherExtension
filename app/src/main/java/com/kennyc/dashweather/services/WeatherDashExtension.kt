@@ -97,7 +97,7 @@ class WeatherDashExtension : DashClockExtension(), WeatherContract.View {
             val connMgr = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
             if (connMgr.isActiveNetworkMetered && connMgr.restrictBackgroundStatus == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED) {
-                //  Log.v(DarkSkyDashExtension.TAG, "Data saver enabled and on a metered network, skipping update")
+                  logger.v(TAG, "Data saver enabled and on a metered network, skipping update")
                 return false
             }
         }
@@ -106,7 +106,7 @@ class WeatherDashExtension : DashClockExtension(), WeatherContract.View {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
             if (powerManager.isPowerSaveMode) {
-                // Log.v(DarkSkyDashExtension.TAG, "Battery saver enabled, skipping update")
+                 logger.v(TAG, "Battery saver enabled, skipping update")
                 return false
             }
         }
